@@ -1,4 +1,4 @@
-package proyecto2t;
+package personajes;
 
 public class Personajes {
 
