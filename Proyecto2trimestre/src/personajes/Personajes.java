@@ -3,8 +3,10 @@ package personajes;
 import java.util.ArrayList;
 
 import armas.Armas;
+import estados.Estados;
+import hechizos.Hechizos;
 
-public class Personajes {
+public abstract class Personajes {
 	protected String nombre;
 	protected int vidaMax;
 	protected int vidaActual;
@@ -14,8 +16,9 @@ public class Personajes {
 	protected int defensaBase;
 	protected int poderMagico;
 	protected Armas armaEquipada;
-	protected ArrayList estadosActivos;
-	protected ArrayList hechizos;
+	protected ArrayList <Estados> estadosActivos;
+	protected ArrayList <Hechizos> hechizos;
+	
 		
 	
 }
