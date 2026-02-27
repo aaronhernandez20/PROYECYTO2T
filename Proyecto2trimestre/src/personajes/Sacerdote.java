@@ -1,5 +1,5 @@
 package personajes;
 
-public class Sacerdote {
+public class Sacerdote extends Personajes {
 
 }
