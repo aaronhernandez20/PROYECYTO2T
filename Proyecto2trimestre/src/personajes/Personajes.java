@@ -18,45 +18,71 @@ public abstract class Personajes {
 	protected int defensaBase;
 	protected int poderMagico;
 	protected Armas armaEquipada;
-	protected ArrayList <Estados> estadosActivos;
-	protected ArrayList <Hechizos> hechizos;
-	
+	protected ArrayList<Estados> estadosActivos;
+	protected ArrayList<Hechizos> hechizos;
+
 	protected Map<String, Integer> cooldowns;
-	
-	
+
 	public Personajes(String nombre, int vidaMax, int recursoMax, int ataqueBase, int defensaBase, int poderMagico) {
-        this.nombre = nombre;
-        this.vidaMax = vidaMax;
-        // la vida actual empieza al max, por eso se pone vidaMax en vidaActual
-        this.vidaActual = vidaMax; 
-        this.recursoMax = recursoMax;
-        //el recurso siempre empieza al maximo, por eso se pone el recursoMax en el recurso Actual
-        this.recursoActual = recursoMax; 
-        this.ataqueBase = ataqueBase;
-        this.defensaBase = defensaBase;
-        this.poderMagico = poderMagico;		
-		
-        this.estadosActivos = new ArrayList<>();
-        this.hechizos = new ArrayList<>();
-        this.cooldowns = new HashMap<>();
+		this.nombre = nombre;
+		this.vidaMax = vidaMax;
+		// la vida actual empieza al max, por eso se pone vidaMax en vidaActual
+		this.vidaActual = vidaMax;
+		this.recursoMax = recursoMax;
+		// el recurso siempre empieza al maximo, por eso se pone el recursoMax en el
+		// recurso Actual
+		this.recursoActual = recursoMax;
+		this.ataqueBase = ataqueBase;
+		this.defensaBase = defensaBase;
+		this.poderMagico = poderMagico;
+
+		this.estadosActivos = new ArrayList<>();
+		this.hechizos = new ArrayList<>();
+		this.cooldowns = new HashMap<>();
 	}
+
 	public boolean estaVivo() {
-        return this.vidaActual > 0;
-    }
-	public void recibirDano(int cantidad) {
-        // restamos el daño que recibe a la defensa
-        int danoFinal = cantidad - this.defensaBase;
-        if (danoFinal < 0) {
-        	// si el daño ya es menor que 0, que se quede en 0 y no siga en negativo
-            danoFinal = 0;
-        }
-        this.vidaActual -= danoFinal;
-        // la vida no puede bajar nunca de 0
-        if (this.vidaActual < 0) {
-            this.vidaActual = 0;
-        }
-        //se imprime cuanto daño y cuanta vida tiene el personaje
-        System.out.println(this.nombre + " recibe " + danoFinal + " de daño. Vida restante: " + this.vidaActual);
-    }
+		return this.vidaActual > 0;
+	}
+
+	public void recibirDano(int cantidadDano) {
+		// restamos el daño que recibe a la defensa
+		int danoFinal = cantidadDano - this.defensaBase;
+		if (danoFinal < 0) {
+			// si el daño ya es menor que 0, que se quede en 0 y no siga en negativo
+			danoFinal = 0;
+		}
+		this.vidaActual -= danoFinal;
+		// la vida no puede bajar nunca de 0
+		if (this.vidaActual < 0) {
+			this.vidaActual = 0;
+		}
+		// se imprime cuanto daño y cuanta vida tiene el personaje
+		System.out.println(this.nombre + " recibe " + danoFinal + " de daño. Vida restante: " + this.vidaActual);
+	}
+
+	public void equiparArma(Armas nuevaArma) {
+
+	}
+
+	public void curar(int cantidadVida) {
+
+	}
+
+	public void gastarRecurso(int cantidadRecurso) {
+
+	}
+
+	public void aplicarEstados() {
+
+	}
+
+	public void procesarEstados() {
+
+	}
+	//esta funcin es para que se muestre informacion del resumen del combate ya sea daño vida etc.
+	public void resumenCombate() {
+		
+	}
+
 }
-	
