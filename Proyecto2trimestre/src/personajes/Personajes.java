@@ -1,6 +1,7 @@
 package personajes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import armas.Armas;
@@ -42,19 +43,20 @@ public abstract class Personajes {
 	public boolean estaVivo() {
         return this.vidaActual > 0;
     }
-	public void recibirDanio(int cantidad) {
+	public void recibirDano(int cantidad) {
         // restamos el daño que recibe a la defensa
-        int danioFinal = cantidad - this.defensaBase;
-        if (danioFinal < 0) {
+        int danoFinal = cantidad - this.defensaBase;
+        if (danoFinal < 0) {
         	// si el daño ya es menor que 0, que se quede en 0 y no siga en negativo
-            danioFinal = 0;
+            danoFinal = 0;
         }
-        this.vidaActual -= danioFinal;
+        this.vidaActual -= danoFinal;
         // la vida no puede bajar nunca de 0
         if (this.vidaActual < 0) {
             this.vidaActual = 0;
         }
-        System.out.println(this.nombre + " recibe " + danioFinal + " de daño. Vida restante: " + this.vidaActual);
+        //se imprime cuanto daño y cuanta vida tiene el personaje
+        System.out.println(this.nombre + " recibe " + danoFinal + " de daño. Vida restante: " + this.vidaActual);
     }
 }
 	
