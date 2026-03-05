@@ -62,7 +62,7 @@ public abstract class Personajes {
 	}
 
 	public void equiparArma(Armas nuevaArma) {
-
+		this.armaEquipada= nuevaArma;
 	}
 
 	public void curar(int cantidadVida) {
