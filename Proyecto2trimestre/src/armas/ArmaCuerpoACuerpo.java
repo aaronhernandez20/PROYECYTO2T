@@ -9,7 +9,7 @@ public class ArmaCuerpoACuerpo extends Armas {
     }
 
     @Override
-    public int calcularDanio(Personajes atacante, Personajes defensor) {
+    public int calcularDano(Personajes atacante, Personajes defensor) {
         // Daño inicial = Daño del arma
         int danoTotal = this.danoBase;
 

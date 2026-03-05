@@ -21,7 +21,7 @@ public abstract class Armas {
         this.probCritico = probCritico;
     }
 
-    public abstract int calcularDanio(Personajes atacante, Personajes defensor);
+    public abstract int calcularDano(Personajes atacante, Personajes defensor);
 
     public String getNombre() {
         return nombre;
