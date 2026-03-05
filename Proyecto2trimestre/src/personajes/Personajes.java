@@ -66,7 +66,11 @@ public abstract class Personajes {
 	}
 
 	public void curar(int cantidadVida) {
-
+		this.vidaActual=+cantidadVida;
+		if (vidaActual>vidaMax) {
+			vidaActual=vidaMax;
+		}
+		System.out.println("El personaje" + this.nombre + "se ha curado" + cantidadVida + "y tiene" + vidaActual + "de vida actual");
 	}
 
 	public void gastarRecurso(int cantidadRecurso) {
