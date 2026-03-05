@@ -66,14 +66,23 @@ public abstract class Personajes {
 	}
 
 	public void curar(int cantidadVida) {
-		this.vidaActual=+cantidadVida;
+		this.vidaActual+=cantidadVida;
 		if (vidaActual>vidaMax) {
 			vidaActual=vidaMax;
 		}
-		System.out.println("El personaje" + this.nombre + "se ha curado" + cantidadVida + "y tiene" + vidaActual + "de vida actual");
+		System.out.println("El personaje " + this.nombre + " se ha curado " + cantidadVida + " y tiene " + vidaActual + " de vida actual ");
 	}
 
-	public void gastarRecurso(int cantidadRecurso) {
+	public boolean gastarRecurso(int coste) {
+		if(this.recursoActual>=coste){
+			this.recursoActual-=coste;
+			System.out.println("Este personaje: "+ this.nombre+ " gasta de recurso " + coste+ 
+					" y le queda de recurso actual " + this.recursoActual + "/"+ this.recursoMax);
+			return true;
+		}else {
+			System.out.println("No tiene recursos suficientes");
+			return false;
+		}
 
 	}
 
