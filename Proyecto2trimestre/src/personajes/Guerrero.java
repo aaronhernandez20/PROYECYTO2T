@@ -9,6 +9,19 @@ public class Guerrero extends Personajes{
 		// TODO Auto-generated constructor stub
 		this.defensaAdrenalina= defensaAdrenalina;
 	}
-	
+	@Override
+	public void recibirDano (int cantidadDano) {
+		//daño despues de aplicar la defensa por adrenalina
+		int danoReducido = cantidadDano - this.defensaAdrenalina;
 
+		if (danoReducido < 0) {
+		    danoReducido = 0;
+		}
+		super.recibirDano(danoReducido);
+	}
+	//polimorfismo
+	@Override
+	public void realizarAccion(Personajes objetivo) {
+	    System.out.println(this.nombre + " se prepara para actuar...");
+	}
 }

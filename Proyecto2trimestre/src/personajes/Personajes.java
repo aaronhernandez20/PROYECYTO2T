@@ -97,5 +97,7 @@ public abstract class Personajes {
 	public void resumenCombate() {
 		
 	}
+	//polimorfismo
+	public abstract void realizarAccion(Personajes objetivo);
 
 }
