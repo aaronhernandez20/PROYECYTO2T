@@ -93,10 +93,18 @@ public abstract class Personajes {
 	public void procesarEstados() {
 	}
 
-	// esta funcion es para que se muestre informacion del resumen del combate ya
-	// sea daño vida etc.
-	public void resumenCombate() {
-	}
+	//esta funcin es para que se muestre informacion del resumen del combate ya sea daño vida etc.
+		public void resumenCombate() {
+			System.out.println("RESUMEN DEL COMBATE:");
+			System.out.println(this.nombre);
+			System.out.println("Vida"+this.vidaActual+"/"+ this.vidaMax);
+			System.out.println("Recurso"+this.recursoActual+"/"+ this.recursoMax);
+			System.out.println("Arma equipada"+ this.armaEquipada);
+		}
+		//polimorfismo
+		public abstract void realizarAccion(Personajes objetivo);
+
+	
 
 	// Getters
 
@@ -130,47 +138,12 @@ public abstract class Personajes {
 
 	public int getPoderMagico() {
 		return poderMagico;
-	}
-		this.armaEquipada= nuevaArma;
-	}
+	}}
 
-	public void curar(int cantidadVida) {
-		this.vidaActual+=cantidadVida;
-		if (vidaActual>vidaMax) {
-			vidaActual=vidaMax;
-		}
-		System.out.println("El personaje " + this.nombre + " se ha curado " + cantidadVida + " y tiene " + vidaActual + " de vida actual ");
-	}
+	
 
-	public boolean gastarRecurso(int coste) {
-		if(this.recursoActual>=coste){
-			this.recursoActual-=coste;
-			System.out.println("Este personaje: "+ this.nombre+ " gasta de recurso " + coste+ 
-					" y le queda de recurso actual " + this.recursoActual + "/"+ this.recursoMax);
-			return true;
-		}else {
-			System.out.println("No tiene recursos suficientes");
-			return false;
-		}
 
-	}
 
-	public void aplicarEstados() {
 
-	}
 
-	public void procesarEstados() {
-
-	}
-	//esta funcin es para que se muestre informacion del resumen del combate ya sea daño vida etc.
-	public void resumenCombate() {
-		System.out.println("RESUMEN DEL COMBATE:");
-		System.out.println(this.nombre);
-		System.out.println("Vida"+this.vidaActual+"/"+ this.vidaMax);
-		System.out.println("Recurso"+this.recursoActual+"/"+ this.recursoMax);
-		System.out.println("Arma equipada"+ this.armaEquipada);
-	}
-	//polimorfismo
-	public abstract void realizarAccion(Personajes objetivo);
-
-}
+	
