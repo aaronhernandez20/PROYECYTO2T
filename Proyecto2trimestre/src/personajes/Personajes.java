@@ -62,6 +62,75 @@ public abstract class Personajes {
 	}
 
 	public void equiparArma(Armas nuevaArma) {
+		this.armaEquipada = nuevaArma;
+	}
+
+	public void curar(int cantidadVida) {
+		this.vidaActual += cantidadVida;
+		if (vidaActual > vidaMax) {
+			vidaActual = vidaMax;
+		}
+		System.out.println("El personaje " + this.nombre + " se ha curado " + cantidadVida + " y tiene " + vidaActual
+				+ " de vida actual ");
+	}
+
+	public boolean gastarRecurso(int coste) {
+		if (this.recursoActual >= coste) {
+			this.recursoActual -= coste;
+			System.out.println("Este personaje: " + this.nombre + " gasta de recurso " + coste +
+					" y le queda de recurso actual " + this.recursoActual + "/" + this.recursoMax);
+			return true;
+		} else {
+			System.out.println("No tiene recursos suficientes");
+			return false;
+		}
+	}
+
+	// recibe el estado que se quiere aplicar al personaje
+	public void aplicarEstados(Estados nuevoEstado) {
+	}
+
+	public void procesarEstados() {
+	}
+
+	// esta funcion es para que se muestre informacion del resumen del combate ya
+	// sea daño vida etc.
+	public void resumenCombate() {
+	}
+
+	// Getters
+
+	public String getNombre() {
+		return nombre;
+	}
+
+	public int getVidaActual() {
+		return vidaActual;
+	}
+
+	public int getVidaMax() {
+		return vidaMax;
+	}
+
+	public int getRecursoActual() {
+		return recursoActual;
+	}
+
+	public int getRecursoMax() {
+		return recursoMax;
+	}
+
+	public int getAtaqueBase() {
+		return ataqueBase;
+	}
+
+	public int getDefensaBase() {
+		return defensaBase;
+	}
+
+	public int getPoderMagico() {
+		return poderMagico;
+	}
 		this.armaEquipada= nuevaArma;
 	}
 
