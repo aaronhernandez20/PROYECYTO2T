@@ -164,7 +164,13 @@ public abstract class Personajes {
 	}
 	//esta funcin es para que se muestre informacion del resumen del combate ya sea daño vida etc.
 	public void resumenCombate() {
-		
+		System.out.println("RESUMEN DEL COMBATE:");
+		System.out.println(this.nombre);
+		System.out.println("Vida"+this.vidaActual+"/"+ this.vidaMax);
+		System.out.println("Recurso"+this.recursoActual+"/"+ this.recursoMax);
+		System.out.println("Arma equipada"+ this.armaEquipada);
 	}
+	//polimorfismo
+	public abstract void realizarAccion(Personajes objetivo);
 
 }
