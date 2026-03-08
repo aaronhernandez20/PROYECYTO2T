@@ -3,6 +3,7 @@ package personajes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 import armas.Armas;
 import estados.Estados;
 import hechizos.Hechizos;
@@ -19,6 +20,7 @@ public abstract class Personajes {
 	protected Armas armaEquipada;
 	protected ArrayList<Estados> estadosActivos;
 	protected ArrayList<Hechizos> hechizos;
+
 	protected Map<String, Integer> cooldowns;
 
 	public Personajes(String nombre, int vidaMax, int recursoMax, int ataqueBase, int defensaBase, int poderMagico) {
@@ -33,6 +35,7 @@ public abstract class Personajes {
 		this.ataqueBase = ataqueBase;
 		this.defensaBase = defensaBase;
 		this.poderMagico = poderMagico;
+
 		this.estadosActivos = new ArrayList<>();
 		this.hechizos = new ArrayList<>();
 		this.cooldowns = new HashMap<>();
@@ -128,4 +131,40 @@ public abstract class Personajes {
 	public int getPoderMagico() {
 		return poderMagico;
 	}
+		this.armaEquipada= nuevaArma;
+	}
+
+	public void curar(int cantidadVida) {
+		this.vidaActual+=cantidadVida;
+		if (vidaActual>vidaMax) {
+			vidaActual=vidaMax;
+		}
+		System.out.println("El personaje " + this.nombre + " se ha curado " + cantidadVida + " y tiene " + vidaActual + " de vida actual ");
+	}
+
+	public boolean gastarRecurso(int coste) {
+		if(this.recursoActual>=coste){
+			this.recursoActual-=coste;
+			System.out.println("Este personaje: "+ this.nombre+ " gasta de recurso " + coste+ 
+					" y le queda de recurso actual " + this.recursoActual + "/"+ this.recursoMax);
+			return true;
+		}else {
+			System.out.println("No tiene recursos suficientes");
+			return false;
+		}
+
+	}
+
+	public void aplicarEstados() {
+
+	}
+
+	public void procesarEstados() {
+
+	}
+	//esta funcin es para que se muestre informacion del resumen del combate ya sea daño vida etc.
+	public void resumenCombate() {
+		
+	}
+
 }
