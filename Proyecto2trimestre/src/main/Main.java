@@ -7,13 +7,14 @@ import armas.*;
 public class Main {
 
     public static void main(String[] args) {
-        // Crear los dos equipos
+        // se crean los dos equipos
         ArrayList<Personajes> equipoBueno = crearEquipoBueno();
         ArrayList<Personajes> equipoMalo = crearEquipoMalo();
     }
 
 	public static ArrayList<Personajes> crearEquipoBueno() {
 		// TODO Auto-generated method stub
+		// equipo bueno
 		ArrayList<Personajes> equipo = new ArrayList<>();
         equipo.add(crearGeralt());
         equipo.add(crearYennefer());
@@ -81,6 +82,7 @@ public class Main {
 	
 	public static ArrayList<Personajes> crearEquipoMalo() {
 		// TODO Auto-generated method stub
+		// equipo malo
 		ArrayList<Personajes> equipo = new ArrayList<>();
         equipo.add(crearImlerith());
         equipo.add(crearCaranthir());
