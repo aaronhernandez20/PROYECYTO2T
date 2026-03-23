@@ -5,14 +5,14 @@ public class Mago extends Personajes {
     private double multiplicadorMagico;
 
     public Mago(String nombre, int vidaMax, int recursoMax, int ataqueBase,
-                int defensaBase, int poderMagico, double multiplicadorMagico) {
+            int defensaBase, int poderMagico, double multiplicadorMagico) {
         super(nombre, vidaMax, recursoMax, ataqueBase, defensaBase, poderMagico);
         this.multiplicadorMagico = multiplicadorMagico;
     }
 
     // Calcula el poder real del hechizo multiplicando el poderMagico base
     public int calcularPoderHechizo() {
-        return (int)(this.poderMagico * this.multiplicadorMagico);
+        return (int) (this.poderMagico * this.multiplicadorMagico);
     }
 
     // polimorfismo, el mago tiene su propia forma de actuar

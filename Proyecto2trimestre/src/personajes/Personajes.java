@@ -50,7 +50,8 @@ public abstract class Personajes {
 		// la vida actual empieza al max, por eso se pone vidaMax en vidaActual
 		this.vidaActual = vidaMax;
 		this.recursoMax = recursoMax;
-		// el recurso siempre empieza al maximo, por eso se pone el recursoMax en el recursoActual
+		// el recurso siempre empieza al maximo, por eso se pone el recursoMax en el
+		// recursoActual
 		this.recursoActual = recursoMax;
 		this.ataqueBase = ataqueBase;
 		this.defensaBase = defensaBase;
@@ -100,7 +101,8 @@ public abstract class Personajes {
 				+ " de vida actual ");
 	}
 
-	// comprueba si tiene suficiente recurso y si puede lo gasta, devuelve false si no puede
+	// comprueba si tiene suficiente recurso y si puede lo gasta, devuelve false si
+	// no puede
 	public boolean gastarRecurso(int coste) {
 		if (this.recursoActual >= coste) {
 			this.recursoActual -= coste;
@@ -123,7 +125,8 @@ public abstract class Personajes {
 	public void procesarEstados() {
 	}
 
-	// esta funcion es para que se muestre informacion del resumen del combate ya sea daño vida etc.
+	// esta funcion es para que se muestre informacion del resumen del combate ya
+	// sea daño vida etc.
 	public void resumenCombate() {
 		System.out.println("RESUMEN DEL COMBATE:");
 		System.out.println(this.nombre);
@@ -133,10 +136,12 @@ public abstract class Personajes {
 	}
 
 	// polimorfismo: cada subclase decide como actua en su turno
-	// el guerrero atacara con su espada, el mago lanzara hechizos, el sacerdote curara
+	// el guerrero atacara con su espada, el mago lanzara hechizos, el sacerdote
+	// curara
 	public abstract void realizarAccion(Personajes objetivo);
 
-	// Getters: devuelven los atributos privados para que otras clases puedan leerlos
+	// Getters: devuelven los atributos privados para que otras clases puedan
+	// leerlos
 
 	public String getNombre() {
 		return nombre;
@@ -169,10 +174,4 @@ public abstract class Personajes {
 	public int getPoderMagico() {
 		return poderMagico;
 	}
-}	
-
-
-
-
-
-	
+}
