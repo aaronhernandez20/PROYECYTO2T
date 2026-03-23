@@ -137,6 +137,19 @@ public abstract class Personajes {
 	public abstract void realizarAccion(Personajes objetivo);
 
 	// Getters: devuelven los atributos privados para que otras clases puedan leerlos
+	
+	// las dos armas disponibles del personaje para elegir
+	protected ArrayList<Armas> armasDisponibles = new ArrayList<>();
+
+	// permite añadir un arma al listado de opciones
+	public void agregarArmaDisponible(Armas arma) {
+	    this.armasDisponibles.add(arma);
+	}
+
+	// devuelve la lista de armas disponibles
+	public ArrayList<Armas> getArmasDisponibles() {
+	    return armasDisponibles;
+	}
 
 	public String getNombre() {
 		return nombre;
