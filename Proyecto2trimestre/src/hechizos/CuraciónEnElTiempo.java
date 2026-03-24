@@ -24,8 +24,8 @@ public class CuraciónEnElTiempo extends Hechizos {
         if (!puedeUsarse(lanzador))
             return;
 
-        System.out.println(" " + lanzador.getNombre() + " lanza «" + nombre
-                + "» sobre " + blanco.getNombre() + ". ¡Estado Renovar aplicado!");
+        System.out.println(" " + lanzador.getNombre() + " lanza " + nombre
+                + " sobre " + blanco.getNombre() + ". ¡Estado Renovar aplicado!");
 
         // Si lo lanza un Sacerdote, Renovar cura +20 HP extra por turno
         if (lanzador instanceof Sacerdote) {
