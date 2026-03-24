@@ -116,13 +116,34 @@ public abstract class Personajes {
 	// recibe el estado que se quiere aplicar al personaje
 	// si ya tiene ese estado lo renueva, si no lo tiene lo añade a la lista
 	public void aplicarEstados(Estados nuevoEstado) {
+	    for (int i = 0; i < estadosActivos.size(); i++) {
+	        if (estadosActivos.get(i).getNombre().equals(nuevoEstado.getNombre())) {
+	            // si ya existe ese estado lo renueva
+	            estadosActivos.get(i).renovarDuracion(nuevoEstado.getTurnosRestantes());
+	            return;
+	        }
+	    }
+	    // si no existe lo añade
+	    estadosActivos.add(nuevoEstado);
+	    nuevoEstado.alAplicar(this);
 	}
 
-	// recorre todos los estados activos del personaje y aplica su efecto
+	// recorre todos los estados activos del personaje en sentido inverso es decir al reves y aplica su efecto
 	// al final borra los estados que ya hayan expirado
 	public void procesarEstados() {
+	    for (int i = estadosActivos.size() - 1; i >= 0; i--) {
+	        Estados estado = estadosActivos.get(i);
+	        // aplica el efecto del estado
+	        estado.alProcesarTurno(this);
+	        // reduce la duracion
+	        estado.reducirDuracion();
+	        // si ha expirado lo elimina
+	        if (!estado.estaActivo()) {
+	            estado.alExpirar(this);
+	            estadosActivos.remove(i);
+	        }
+	    }
 	}
-
 	// esta funcion es para que se muestre informacion del resumen del combate ya sea daño vida etc.
 	public void resumenCombate() {
 		System.out.println("RESUMEN DEL COMBATE:");
