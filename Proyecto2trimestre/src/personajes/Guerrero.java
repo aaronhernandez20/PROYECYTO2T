@@ -5,6 +5,7 @@ public class Guerrero extends Personajes {
 
 
 	private int defensaAdrenalina;
+	private double probBloqueo;
 
 	public Guerrero(String nombre, int vidaMax, int recursoMax, int ataqueBase, int defensaBase, int poderMagico, int defensaAdrenalina, double probBloqueo) {
 		super(nombre, vidaMax, recursoMax, ataqueBase, defensaBase, poderMagico);
@@ -17,7 +18,6 @@ public class Guerrero extends Personajes {
 	    System.out.println(this.nombre + " se prepara para actuar...");
 	}
 	
-	private double probBloqueo;
 	
 
 	
