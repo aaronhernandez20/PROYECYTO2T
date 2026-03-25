@@ -31,7 +31,7 @@ public abstract class Personajes {
 	protected int poderMagico;
 
 	// arma que lleva equipada el personaje, afecta al calculo del daño
-	protected Armas armaEquipada;
+	public Armas armaEquipada;
 
 	// lista de estados activos del personaje (quemadura, veneno, renovar...)
 	protected ArrayList<Estados> estadosActivos;
