@@ -3,6 +3,8 @@ package main;
 import java.util.ArrayList;
 import personajes.*;
 import armas.*;
+import hechizos.*;
+import catalogo.CatalogoPersonajes;
 
 public class Main {
 
@@ -13,133 +15,68 @@ public class Main {
     }
 
     public static ArrayList<Personajes> crearEquipoBueno() {
-        // TODO Auto-generated method stub
-        // equipo bueno
-        ArrayList<Personajes> equipo = new ArrayList<>();
-        equipo.add(crearGeralt());
-        equipo.add(crearYennefer());
-        equipo.add(crearCiri());
-        return equipo;
+        ArrayList<Personajes> equipoBueno = new ArrayList<>();
 
-    }
+        Personajes geralt = CatalogoPersonajes.crearGeralt();
+        asignarArmaAleatoria(geralt);
+        // Hechizos de Geralt: habilidad fisica con cooldown (segun el profe el guerrero
+        // puede tenerlas)
+        geralt.agregarHechizo(new DañoDirecto("Golpe Poderoso", 30, 120, 3));
+        equipoBueno.add(geralt);
 
-    private static Personajes crearCiri() {
-        // TODO Auto-generated method stub
-        Sacerdote ciri = new Sacerdote("Ciri", 600, 200, 70, 35, 50, 20);
+        Personajes yennefer = CatalogoPersonajes.crearYennefer();
+        asignarArmaAleatoria(yennefer);
+        // Hechizos de Yennefer: daño directo + daño en el tiempo (obligatorio para
+        // Mago)
+        yennefer.agregarHechizo(new DañoDirecto("Señal de Igni", 50, 80, 2));
+        yennefer.agregarHechizo(new DañoEnElTiempo("Fuego de Vengerberg", 40, 3));
+        equipoBueno.add(yennefer);
 
-        // Sus 2 armas
+        Personajes ciri = CatalogoPersonajes.crearCiri();
+        asignarArmaAleatoria(ciri);
+        // Hechizos de Ciri: curacion directa + curacion en el tiempo (obligatorio para
+        // Sacerdote)
+        ciri.agregarHechizo(new CuraciónDirecta("Poción de Golondrina", 60, 200, 3));
+        ciri.agregarHechizo(new CuraciónEnElTiempo("Aura de la Vieja Sangre", 50, 4));
+        equipoBueno.add(ciri);
 
-        ArmaCuerpoACuerpo zireael = new ArmaCuerpoACuerpo("Zireael", 70, 1.1, 0.30);
-        ArmaADistancia amuletoMagico = new ArmaADistancia("Amuleto Mágico", 45, 1.0, 0.15);
-
-        // El juego decide aleatoriamente que arma escoge
-
-        if (Math.random() < 0.5) {
-            ciri.equiparArma(zireael);
-        } else {
-            ciri.equiparArma(amuletoMagico);
-        }
-        return ciri;
-    }
-
-    private static Personajes crearYennefer() {
-        // TODO Auto-generated method stub
-        Mago yennefer = new Mago("Yennefer de Vengerberg", 400, 300, 30, 20, 100, 1.5);
-
-        // Sus 2 armas
-        ArmaCuerpoACuerpo dagaPlata = new ArmaCuerpoACuerpo("Daga de Plata", 30, 1.0, 0.10);
-        ArmaADistancia cuervoCristal = new ArmaADistancia("Cuervo de Cristal", 55, 1.1, 0.20);
-
-        // El juego decide aleatoriamente que arma escoge
-        if (Math.random() < 0.5) {
-            yennefer.equiparArma(dagaPlata);
-        } else {
-            yennefer.equiparArma(cuervoCristal);
-        }
-        return yennefer;
-    }
-
-    private static Personajes crearGeralt() {
-        // TODO Auto-generated method stub
-        Guerrero geralt = new Guerrero("Geralt de Rivia", 800, 100, 85, 50, 0, 20, 0.20);
-
-        // Sus 2 armas
-        ArmaCuerpoACuerpo aerondight = new ArmaCuerpoACuerpo("Aerondight", 80, 1.2, 0.20);
-        ArmaADistancia ballestaUrsina = new ArmaADistancia("Ballesta Ursina", 50, 1.0, 0.15);
-
-        // El juego decide aleatoriamente que arma escoge
-        if (Math.random() < 0.5) {
-            geralt.equiparArma(aerondight);
-        } else {
-            geralt.equiparArma(ballestaUrsina);
-        }
-        return geralt;
+        return equipoBueno;
     }
 
     public static ArrayList<Personajes> crearEquipoMalo() {
-        // TODO Auto-generated method stub
-        // equipo malo
-        ArrayList<Personajes> equipo = new ArrayList<>();
-        equipo.add(crearImlerith());
-        equipo.add(crearCaranthir());
-        equipo.add(crearEredin());
-        return equipo;
+        ArrayList<Personajes> equipoMalo = new ArrayList<>();
+
+        Personajes imlerith = CatalogoPersonajes.crearImlerith();
+        asignarArmaAleatoria(imlerith);
+        // Hechizos de Imlerith: habilidad fisica con cooldown alto
+        imlerith.agregarHechizo(new DañoDirecto("Embestida Brutal", 20, 150, 4));
+        equipoMalo.add(imlerith);
+
+        Personajes caranthir = CatalogoPersonajes.crearCaranthir();
+        asignarArmaAleatoria(caranthir);
+        // Hechizos de Caranthir: daño directo + daño en el tiempo (obligatorio para
+        // Mago)
+        caranthir.agregarHechizo(new DañoDirecto("Lanza de Hielo", 45, 70, 2));
+        caranthir.agregarHechizo(new DañoEnElTiempo("Escarcha Corrosiva", 35, 3));
+        equipoMalo.add(caranthir);
+
+        Personajes eredin = CatalogoPersonajes.crearEredin();
+        asignarArmaAleatoria(eredin);
+        // Hechizos de Eredin: curacion directa + curacion en el tiempo (obligatorio
+        // para Sacerdote)
+        eredin.agregarHechizo(new CuraciónDirecta("Sacrificio Oscuro", 60, 200, 3));
+        eredin.agregarHechizo(new CuraciónEnElTiempo("Presencia del Rey", 50, 4));
+        equipoMalo.add(eredin);
+
+        return equipoMalo;
     }
 
-    private static Personajes crearEredin() {
-        // TODO Auto-generated method stub
-        Sacerdote eredin = new Sacerdote("Eredin", 750, 200, 60, 40, 60, 15);
-
-        // Sus 2 armas
-
-        ArmaCuerpoACuerpo espadaCaceria = new ArmaCuerpoACuerpo("Espada de la Cacería", 75, 1.1, 0.15);
-        ArmaADistancia proyeccionEspectral = new ArmaADistancia("Proyección Espectral", 55, 1.0, 0.20);
-
-        // El juego decide aleatoriamente que arma escoge
-
+    // Funcion para elegir un arma de las 2 disponibles aleatoriamente
+    private static void asignarArmaAleatoria(Personajes personaje) {
         if (Math.random() < 0.5) {
-            eredin.equiparArma(espadaCaceria);
+            personaje.equiparArma(personaje.getArmasDisponibles().get(0));
         } else {
-            eredin.equiparArma(proyeccionEspectral);
+            personaje.equiparArma(personaje.getArmasDisponibles().get(1));
         }
-        return eredin;
-    }
-
-    private static Personajes crearCaranthir() {
-        // TODO Auto-generated method stub
-        Mago caranthir = new Mago("Caranthir", 500, 280, 25, 15, 90, 1.3);
-
-        // Sus 2 armas
-
-        ArmaCuerpoACuerpo baculoNavegador = new ArmaCuerpoACuerpo("Báculo de Navegador", 35, 1.0, 0.10);
-        ArmaADistancia orbeEscarcha = new ArmaADistancia("Orbe de Escarcha Blanca", 65, 1.2, 0.25);
-
-        // El juego decide aleatoriamente que arma escoge
-
-        if (Math.random() < 0.5) {
-            caranthir.equiparArma(baculoNavegador);
-        } else {
-            caranthir.equiparArma(orbeEscarcha);
-        }
-        return caranthir;
-    }
-
-    private static Personajes crearImlerith() {
-        // TODO Auto-generated method stub
-        Guerrero imlerith = new Guerrero("Imlerith", 1000, 50, 90, 70, 0, 30, 0.15);
-
-        // Sus 2 armas
-
-        ArmaCuerpoACuerpo mazaGigante = new ArmaCuerpoACuerpo("Maza Gigante", 100, 1.3, 0.15);
-        ArmaADistancia hachaArrojadiza = new ArmaADistancia("Hacha Arrojadiza", 60, 1.0, 0.10);
-
-        // El juego decide aleatoriamente que arma escoge
-
-        if (Math.random() < 0.5) {
-            imlerith.equiparArma(mazaGigante);
-        } else {
-            imlerith.equiparArma(hachaArrojadiza);
-        }
-        return imlerith;
     }
 }

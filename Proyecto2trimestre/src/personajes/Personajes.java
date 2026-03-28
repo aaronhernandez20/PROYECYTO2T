@@ -8,170 +8,285 @@ import armas.Armas;
 import estados.Estados;
 import hechizos.Hechizos;
 
-// clase padre de la que heredan Guerrero, Mago y Sacerdote
-// es abstracta porque no se puede crear un personaje generico, siempre sera uno de los 3
+// Clase padre de la que heredan Guerrero, Mago y Sacerdote.
+// Es abstracta porque no se puede crear un personaje generico, siempre sera uno de los 3.
 public abstract class Personajes {
 
-	// nombre del personaje que se muestra en el combate
-	protected String nombre;
+    // Nombre del personaje que se muestra en el combate
+    protected String nombre;
 
-	// vida maxima y vida actual del personaje
-	protected int vidaMax;
-	protected int vidaActual;
+    // Vida maxima y vida actual del personaje
+    protected int vidaMax;
+    protected int vidaActual;
 
-	// recurso que se gasta al usar hechizos (mana, vigor, etc)
-	protected int recursoMax;
-	protected int recursoActual;
+    // Recurso que se gasta al usar hechizos (mana, vigor, etc)
+    protected int recursoMax;
+    protected int recursoActual;
 
-	// estadisticas base que afectan al daño y la defensa
-	protected int ataqueBase;
-	protected int defensaBase;
+    // Estadisticas base que afectan al daño y la defensa
+    protected int ataqueBase;
+    protected int defensaBase;
 
-	// poder magico que usan los magos para calcular el daño de sus hechizos
-	protected int poderMagico;
+    // Poder magico que usan los magos para calcular el daño de sus hechizos
+    protected int poderMagico;
 
-	// arma que lleva equipada el personaje, afecta al calculo del daño
-	protected Armas armaEquipada;
+    // Arma que lleva equipada el personaje, afecta al calculo del daño
+    protected Armas armaEquipada;
 
-	// lista de estados activos del personaje (quemadura, veneno, renovar...)
-	protected ArrayList<Estados> estadosActivos;
+    // ArrayList de estados activos del personaje (quemadura, veneno, renovar...)
+    // El profe pide ArrayList obligatoriamente para estados
+    protected ArrayList<Estados> estadosActivos;
 
-	// lista de hechizos que puede usar el personaje
-	protected ArrayList<Hechizos> hechizos;
+    // ArrayList de hechizos que puede usar el personaje
+    // El profe pide ArrayList obligatoriamente para hechizos
+    protected ArrayList<Hechizos> hechizos;
 
-	// mapa para guardar los tiempos de recarga de los hechizos
-	// clave: nombre del hechizo, valor: turnos que le quedan de cooldown
-	protected Map<String, Integer> cooldowns;
+    // Mapa para guardar los tiempos de recarga de los hechizos.
+    // Clave: nombre del hechizo, Valor: turnos que le quedan de cooldown.
+    // El profe pide Map obligatoriamente para cooldowns.
+    protected Map<String, Integer> cooldowns;
 
-	// constructor base, todos los personajes nacen con estos datos
-	public Personajes(String nombre, int vidaMax, int recursoMax, int ataqueBase, int defensaBase, int poderMagico) {
-		this.nombre = nombre;
-		this.vidaMax = vidaMax;
-		// la vida actual empieza al max, por eso se pone vidaMax en vidaActual
-		this.vidaActual = vidaMax;
-		this.recursoMax = recursoMax;
-		// el recurso siempre empieza al maximo, por eso se pone el recursoMax en el
-		// recursoActual
-		this.recursoActual = recursoMax;
-		this.ataqueBase = ataqueBase;
-		this.defensaBase = defensaBase;
-		this.poderMagico = poderMagico;
+    // Constructor base, todos los personajes nacen con estos datos
+    public Personajes(String nombre, int vidaMax, int recursoMax, int ataqueBase, int defensaBase, int poderMagico) {
+        this.nombre = nombre;
+        this.vidaMax = vidaMax;
+        // La vida actual empieza al maximo
+        this.vidaActual = vidaMax;
+        this.recursoMax = recursoMax;
+        // El recurso siempre empieza al maximo
+        this.recursoActual = recursoMax;
+        this.ataqueBase = ataqueBase;
+        this.defensaBase = defensaBase;
+        this.poderMagico = poderMagico;
 
-		// las listas y el mapa nacen vacios, se van llenando durante el juego
-		this.estadosActivos = new ArrayList<>();
-		this.hechizos = new ArrayList<>();
-		this.cooldowns = new HashMap<>();
-	}
+        // Las listas y el mapa nacen vacios, se van llenando durante el juego
+        this.estadosActivos = new ArrayList<>();
+        this.hechizos = new ArrayList<>();
+        this.cooldowns = new HashMap<>();
+    }
 
-	// devuelve true si el personaje sigue vivo, false si ha muerto
-	public boolean estaVivo() {
-		return this.vidaActual > 0;
-	}
+    // -------------------------------------------------------------------------
+    // METODOS DE VIDA Y RECURSO
+    // -------------------------------------------------------------------------
 
-	// resta el daño recibido teniendo en cuenta la defensa del personaje
-	public void recibirDano(int cantidadDano) {
-		// restamos el daño que recibe a la defensa
-		int danoFinal = cantidadDano - this.defensaBase;
-		if (danoFinal < 0) {
-			// si el daño ya es menor que 0, que se quede en 0 y no siga en negativo
-			danoFinal = 0;
-		}
-		this.vidaActual -= danoFinal;
-		// la vida no puede bajar nunca de 0
-		if (this.vidaActual < 0) {
-			this.vidaActual = 0;
-		}
-		// se imprime cuanto daño y cuanta vida tiene el personaje
-		System.out.println(this.nombre + " recibe " + danoFinal + " de daño. Vida restante: " + this.vidaActual);
-	}
+    // Devuelve true si el personaje sigue vivo, false si ha muerto
+    public boolean estaVivo() {
+        return this.vidaActual > 0;
+    }
 
-	// asigna un arma al personaje, cambia el arma que tenia antes
-	public void equiparArma(Armas nuevaArma) {
-		this.armaEquipada = nuevaArma;
-	}
+    // Resta el daño recibido teniendo en cuenta la defensa del personaje.
+    // La defensa absorbe parte del daño antes de que llegue a la vida.
+    public void recibirDano(int cantidadDano) {
+        int danoFinal = cantidadDano - this.defensaBase;
+        // Si la defensa supera el daño, el daño queda en 0 (no cura)
+        if (danoFinal < 0) {
+            danoFinal = 0;
+        }
+        this.vidaActual -= danoFinal;
+        // La vida no puede bajar nunca de 0
+        if (this.vidaActual < 0) {
+            this.vidaActual = 0;
+        }
+        System.out.println(this.nombre + " recibe " + danoFinal + " de daño. (" 
+                + this.vidaActual + "/" + this.vidaMax + " HP)");
+    }
 
-	// suma vida al personaje sin que pueda superar la vida maxima
-	public void curar(int cantidadVida) {
-		this.vidaActual += cantidadVida;
-		// la vida no puede superar el maximo
-		if (vidaActual > vidaMax) {
-			vidaActual = vidaMax;
-		}
-		System.out.println("El personaje " + this.nombre + " se ha curado " + cantidadVida + " y tiene " + vidaActual
-				+ " de vida actual ");
-	}
+    // Recibe daño magico: ignora completamente la defensa del personaje.
+    // Lo usan los hechizos de los Magos segun las reglas del profe.
+    public void recibirDanoMagico(int cantidadDano) {
+        this.vidaActual -= cantidadDano;
+        // La vida no puede bajar nunca de 0
+        if (this.vidaActual < 0) {
+            this.vidaActual = 0;
+        }
+        System.out.println(this.nombre + " recibe " + cantidadDano + " de daño MAGICO (ignora defensa). ("
+                + this.vidaActual + "/" + this.vidaMax + " HP)");
+    }
 
-	// comprueba si tiene suficiente recurso y si puede lo gasta, devuelve false si
-	// no puede
-	public boolean gastarRecurso(int coste) {
-		if (this.recursoActual >= coste) {
-			this.recursoActual -= coste;
-			System.out.println("Este personaje: " + this.nombre + " gasta de recurso " + coste
-					+ " y le queda de recurso actual " + this.recursoActual + "/" + this.recursoMax);
-			return true;
-		} else {
-			System.out.println("No tiene recursos suficientes");
-			return false;
-		}
-	}
+    // Suma vida al personaje sin que pueda superar la vida maxima
+    public void curar(int cantidadVida) {
+        this.vidaActual += cantidadVida;
+        // La vida no puede superar el maximo
+        if (this.vidaActual > this.vidaMax) {
+            this.vidaActual = this.vidaMax;
+        }
+        System.out.println(this.nombre + " se cura " + cantidadVida + " HP. ("
+                + this.vidaActual + "/" + this.vidaMax + " HP)");
+    }
 
-	// recibe el estado que se quiere aplicar al personaje
-	// si ya tiene ese estado lo renueva, si no lo tiene lo añade a la lista
-	public void aplicarEstados(Estados nuevoEstado) {
-	}
+    // Comprueba si tiene suficiente recurso y si puede lo gasta.
+    // Devuelve false si no puede pagar el coste.
+    public boolean gastarRecurso(int coste) {
+        if (this.recursoActual >= coste) {
+            this.recursoActual -= coste;
+            System.out.println(this.nombre + " gasta " + coste + " de recurso. ("
+                    + this.recursoActual + "/" + this.recursoMax + ")");
+            return true;
+        } else {
+            System.out.println("  [SIN RECURSO] " + this.nombre + " no tiene suficiente recurso para lanzar el hechizo.");
+            return false;
+        }
+    }
 
-	// recorre todos los estados activos del personaje y aplica su efecto
-	// al final borra los estados que ya hayan expirado
-	public void procesarEstados() {
-	}
+    // -------------------------------------------------------------------------
+    // METODOS DE ARMA
+    // -------------------------------------------------------------------------
 
-	// esta funcion es para que se muestre informacion del resumen del combate ya
-	// sea daño vida etc.
-	public void resumenCombate() {
-		System.out.println("RESUMEN DEL COMBATE:");
-		System.out.println(this.nombre);
-		System.out.println("Vida: " + this.vidaActual + "/" + this.vidaMax);
-		System.out.println("Recurso: " + this.recursoActual + "/" + this.recursoMax);
-		System.out.println("Arma equipada: " + this.armaEquipada);
-	}
+    // Asigna un arma al personaje, reemplaza el arma que tenia antes
+    public void equiparArma(Armas nuevaArma) {
+        this.armaEquipada = nuevaArma;
+    }
 
-	// polimorfismo: cada subclase decide como actua en su turno
-	// el guerrero atacara con su espada, el mago lanzara hechizos, el sacerdote
-	// curara
-	public abstract void realizarAccion(Personajes objetivo);
+    // -------------------------------------------------------------------------
+    // METODOS DE ESTADOS (ArrayList obligatorio segun el profe)
+    // -------------------------------------------------------------------------
 
-	// Getters: devuelven los atributos privados para que otras clases puedan
-	// leerlos
+    // Recibe el estado que se quiere aplicar al personaje.
+    // REGLA DEL PROFE: si ya tiene ese estado lo renueva, si no lo tiene lo añade.
+    // Esto evita que se apilen varias quemaduras a la vez.
+    public void aplicarEstados(Estados nuevoEstado) {
+        // Recorremos el ArrayList de estados activos buscando uno con el mismo nombre
+        for (Estados estado : estadosActivos) {
+            if (estado.getNombre().equals(nuevoEstado.getNombre())) {
+                // Si ya existe ese estado, renovamos su duracion en vez de añadir uno nuevo
+                estado.renovarDuracion(nuevoEstado.getTurnosRestantes());
+                return;
+            }
+        }
+        // Si no existia, lo añadimos al ArrayList y ejecutamos su efecto de inicio
+        estadosActivos.add(nuevoEstado);
+        nuevoEstado.alAplicar(this);
+    }
 
-	public String getNombre() {
-		return nombre;
-	}
+    // Recorre todos los estados activos del personaje y aplica su efecto.
+    // Se llama al final de cada ronda despues de que todos hayan actuado.
+    // Al final borra del ArrayList los estados que ya hayan expirado.
+    public void procesarEstados() {
+        // Lista auxiliar para guardar los estados que han expirado
+        ArrayList<Estados> expirados = new ArrayList<>();
 
-	public int getVidaActual() {
-		return vidaActual;
-	}
+        for (Estados estado : estadosActivos) {
+            // Aplicamos el efecto del estado en este turno (daño o curacion)
+            estado.alProcesarTurno(this);
+            // Reducimos un turno su duracion
+            estado.reducirDuracion();
+            // Si ya no le quedan turnos, lo marcamos como expirado
+            if (!estado.estaActivo()) {
+                estado.alExpirar(this);
+                expirados.add(estado);
+            }
+        }
 
-	public int getVidaMax() {
-		return vidaMax;
-	}
+        // Borramos del ArrayList los estados que han expirado
+        estadosActivos.removeAll(expirados);
+    }
 
-	public int getRecursoActual() {
-		return recursoActual;
-	}
+    // -------------------------------------------------------------------------
+    // METODOS DE HECHIZOS Y COOLDOWNS (Map obligatorio segun el profe)
+    // -------------------------------------------------------------------------
 
-	public int getRecursoMax() {
-		return recursoMax;
-	}
+    // Añade un hechizo al ArrayList de hechizos del personaje.
+    // Se usa en Main al crear cada personaje para asignarle sus hechizos.
+    public void agregarHechizo(Hechizos hechizo) {
+        this.hechizos.add(hechizo);
+    }
 
-	public int getAtaqueBase() {
-		return ataqueBase;
-	}
+    // Devuelve el cooldown actual de un hechizo buscandolo por nombre en el Map.
+    // Si el hechizo no esta en el mapa (nunca se ha usado) devuelve 0.
+    public int getCooldown(String nombreHechizo) {
+        return cooldowns.getOrDefault(nombreHechizo, 0);
+    }
 
-	public int getDefensaBase() {
-		return defensaBase;
-	}
+    // Guarda o actualiza el cooldown de un hechizo en el Map.
+    // Se llama justo despues de lanzar un hechizo para ponerlo en recarga.
+    public void setCooldown(String nombreHechizo, int turnos) {
+        cooldowns.put(nombreHechizo, turnos);
+    }
 
-	public int getPoderMagico() {
-		return poderMagico;
-	}
+    // Reduce en 1 el cooldown de todos los hechizos del Map al final de cada ronda.
+    // Cuando llega a 0 el hechizo vuelve a estar disponible.
+    public void reducirCooldowns() {
+        for (String nombreHechizo : cooldowns.keySet()) {
+            if (cooldowns.get(nombreHechizo) > 0) {
+                cooldowns.put(nombreHechizo, cooldowns.get(nombreHechizo) - 1);
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // RESUMEN DE COMBATE (obligatorio segun el profe)
+    // -------------------------------------------------------------------------
+
+    // Muestra en consola el estado completo del personaje durante el combate.
+    // El profe pide: nombre, vida, recurso, arma equipada y estados activos.
+    public void resumenCombate() {
+        System.out.println("  " + this.nombre);
+        System.out.println("  Vida:    " + this.vidaActual + "/" + this.vidaMax + " HP");
+        System.out.println("  Recurso: " + this.recursoActual + "/" + this.recursoMax);
+        System.out.println("  Arma:    " + (this.armaEquipada != null ? this.armaEquipada.getNombre() : "Sin arma"));
+        if (estadosActivos.isEmpty()) {
+            System.out.println("  Estados: Ninguno");
+        } else {
+            System.out.print("  Estados: ");
+            for (Estados e : estadosActivos) {
+                System.out.print(e.toString() + "  ");
+            }
+            System.out.println();
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // POLIMORFISMO: cada subclase decide como actua en su turno
+    // -------------------------------------------------------------------------
+
+    // El guerrero atacara con su espada, el mago lanzara hechizos, el sacerdote curara
+    public abstract void realizarAccion(Personajes objetivo);
+
+    // -------------------------------------------------------------------------
+    // GETTERS
+    // -------------------------------------------------------------------------
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public int getVidaActual() {
+        return vidaActual;
+    }
+
+    public int getVidaMax() {
+        return vidaMax;
+    }
+
+    public int getRecursoActual() {
+        return recursoActual;
+    }
+
+    public int getRecursoMax() {
+        return recursoMax;
+    }
+
+    public int getAtaqueBase() {
+        return ataqueBase;
+    }
+
+    public int getDefensaBase() {
+        return defensaBase;
+    }
+
+    public int getPoderMagico() {
+        return poderMagico;
+    }
+
+    public Armas getArmaEquipada() {
+        return armaEquipada;
+    }
+
+    public ArrayList<Hechizos> getHechizos() {
+        return hechizos;
+    }
+
+    public ArrayList<Estados> getEstadosActivos() {
+        return estadosActivos;
+    }
 }
