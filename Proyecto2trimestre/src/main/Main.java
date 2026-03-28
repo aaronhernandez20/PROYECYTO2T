@@ -4,15 +4,17 @@ import java.util.ArrayList;
 import personajes.*;
 import armas.*;
 import catalogo.CatalogoPersonajes;
+import combate.Combate;
 
 public class Main {
 
-    public static void main(String[] args) {
-        // se crean los dos equipos
-        ArrayList<Personajes> equipoBueno = crearEquipoBueno();
-        ArrayList<Personajes> equipoMalo = crearEquipoMalo();
-    }
-
+	public static void main(String[] args) {
+	    ArrayList<Personajes> equipoBueno = crearEquipoBueno();
+	    ArrayList<Personajes> equipoMalo = crearEquipoMalo();
+	    
+	    Combate combate = new Combate(equipoBueno, equipoMalo);
+	    combate.iniciar();
+	}
 	public static ArrayList<Personajes> crearEquipoBueno() {
 		// TODO Auto-generated method stub
 		// equipo bueno
