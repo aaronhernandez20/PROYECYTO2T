@@ -5,19 +5,22 @@ import personajes.*;
 import armas.*;
 import hechizos.*;
 import catalogo.CatalogoPersonajes;
+import combate.Combate;
 
 public class Main {
 
-    public static void main(String[] args) {
-        // se crean los dos equipos
-        ArrayList<Personajes> equipoBueno = crearEquipoBueno();
-        ArrayList<Personajes> equipoMalo = crearEquipoMalo();
-    }
-
-    public static ArrayList<Personajes> crearEquipoBueno() {
-        ArrayList<Personajes> equipoBueno = new ArrayList<>();
-
-        Personajes geralt = CatalogoPersonajes.crearGeralt();
+	public static void main(String[] args) {
+	    ArrayList<Personajes> equipoBueno = crearEquipoBueno();
+	    ArrayList<Personajes> equipoMalo = crearEquipoMalo();
+	    
+	    Combate combate = new Combate(equipoBueno, equipoMalo);
+	    combate.iniciar();
+	}
+	public static ArrayList<Personajes> crearEquipoBueno() {
+		// TODO Auto-generated method stub
+		// equipo bueno
+		ArrayList<Personajes> equipoBueno = new ArrayList<>();
+		Personajes geralt = CatalogoPersonajes.crearGeralt();
         asignarArmaAleatoria(geralt);
         // Hechizos de Geralt: habilidad fisica con cooldown (segun el profe el guerrero
         // puede tenerlas)
