@@ -58,14 +58,22 @@ public class Combate {
 		
 	}
 	private Personajes obtenerEnemigoVivo(ArrayList<Personajes> equipo) {
+	    // recoge todos los personajes vivos en una lista
+	    ArrayList<Personajes> vivos = new ArrayList<>();
 	    for (Personajes p : equipo) {
 	        if (p.estaVivo()) {
-	        	// devuelve el primero que encuentre vivo
-	        	return p; 
+	            vivos.add(p);
 	        }
 	    }
-	    // no quedan enemigos vivos
-	    return null;
+	    
+	    // si no hay nadie vivo devuelve null
+	    if (vivos.isEmpty()) {
+	        return null;
+	    }
+	    
+	    // elige uno al azar de la lista de vivos
+	    int indiceAleatorio = (int)(Math.random() * vivos.size());
+	    return vivos.get(indiceAleatorio);
 	}
 	
 	public void iniciar() {
@@ -88,7 +96,7 @@ public class Combate {
 	                        + objetivo.getNombre() + " con " 
 	                        + atacante.armaEquipada.getNombre() 
 	                        + ". ¡" + dano + " de daño!");
-	                    esperar(1000);
+	                    esperar(2000);
 	                }
 	            }
 	        }
