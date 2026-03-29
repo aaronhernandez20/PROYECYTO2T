@@ -25,28 +25,38 @@ public class Combate {
 
 	// Muestra la presentacion inicial con los dos equipos antes de empezar
 	private void mostrarPresentacion() {
-		System.out.println("╔══════════════════════════════════════╗");
-		System.out.println("║     THE WITCHER - RPG POR TURNOS     ║");
-		System.out.println("╚══════════════════════════════════════╝");
+	    System.out.println("==========================================================");
+	    System.out.println("            THE WITCHER  -  COMBAT SIMULATOR             ");
+	    System.out.println("==========================================================");
+	    System.out.println("  \"Evil is evil. Lesser, greater, middling... makes no");
+	    System.out.println("   difference. The degree is arbitrary.\"");
+	    System.out.println("                                       -- Geralt of Rivia");
+	    System.out.println("----------------------------------------------------------");
+	    esperar(2000);
 
-		System.out.println("\n⚔️  EQUIPO DE GERALT ⚔️");
-		System.out.println("--------------------------------------");
-		for (Personajes p : equipoBueno) {
-			p.resumenCombate();
-			System.out.println("--------------------------------------");
-		}
+	    System.out.println("\n  [ WITCHERS - GERALT'S COMPANY ]");
+	    System.out.println("----------------------------------------------------------");
+	    for (Personajes p : equipoBueno) {
+	        p.resumenCombate();
+	        System.out.println("----------------------------------------------------------");
+	    }
 
-		System.out.println("\n💀  LA CACERÍA SALVAJE 💀");
-		System.out.println("--------------------------------------");
-		for (Personajes p : equipoMalo) {
-			p.resumenCombate();
-			System.out.println("--------------------------------------");
-		}
+	    System.out.println("\n  [ THE WILD HUNT - EREDIN'S RIDERS ]");
+	    System.out.println("----------------------------------------------------------");
+	    for (Personajes p : equipoMalo) {
+	        p.resumenCombate();
+	        System.out.println("----------------------------------------------------------");
+	    }
 
-		System.out.println("\n¡Que comience el combate!\n");
-		esperar(2000);
+	    System.out.println("\n  Initializing combat sequence...");
+	    esperar(1000);
+	    System.out.println("  All units ready.");
+	    esperar(500);
+	    System.out.println("\n==========================================================");
+	    System.out.println("                    COMBAT START                         ");
+	    System.out.println("==========================================================\n");
+	    esperar(1500);
 	}
-
 	// Devuelve true si algún personaje del equipo sigue vivo
 	private boolean hayVivos(ArrayList<Personajes> equipo) {
 		for (Personajes p : equipo) {
