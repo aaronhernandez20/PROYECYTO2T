@@ -44,6 +44,7 @@ public abstract class Estados {
     // termina.
     public abstract void alExpirar(Personajes objetivo);
 
+
     // Esta es la Logica de duracion
 
     // Reduce en 1 la duración del estado y esta debe llamarse al final de cada
