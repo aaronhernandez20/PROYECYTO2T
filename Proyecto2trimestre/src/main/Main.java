@@ -6,16 +6,27 @@ import armas.*;
 import hechizos.*;
 import catalogo.CatalogoPersonajes;
 import combate.Combate;
+import java.util.Scanner;
+
+
 
 public class Main {
 
 	public static void main(String[] args) {
 	    ArrayList<Personajes> equipoBueno = crearEquipoBueno();
 	    ArrayList<Personajes> equipoMalo = crearEquipoMalo();
-	    
-	    Combate combate = new Combate(equipoBueno, equipoMalo);
+	    Scanner scanner = new Scanner(System.in);
+	    System.out.println("Selecciona modo de juego:");
+	    System.out.println("1. Automatico");
+	    System.out.println("2. Manual (controlas el equipo de Geralt)");
+	    int modo = scanner.nextInt();
+	    boolean modoManual = (modo == 2);
+
+	    Combate combate = new Combate(equipoBueno, equipoMalo, modoManual);
 	    combate.iniciar();
 	}
+	
+	
 	public static ArrayList<Personajes> crearEquipoBueno() {
 		// TODO Auto-generated method stub
 		// equipo bueno
@@ -82,4 +93,5 @@ public class Main {
             personaje.equiparArma(personaje.getArmasDisponibles().get(1));
         }
     }
+    
 }
