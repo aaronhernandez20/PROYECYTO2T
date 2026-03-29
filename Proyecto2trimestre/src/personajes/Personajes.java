@@ -33,12 +33,17 @@ public abstract class Personajes {
 	// Arma que lleva equipada el personaje, afecta al calculo del daño
 	protected Armas armaEquipada;
 
+	// ArrayList con las 2 armas disponibles del personaje para elegir al inicio.
+	// Lo usa CatalogoPersonajes para registrar las armas y Main para equipar una al
+	// azar.
+	protected ArrayList<Armas> armasDisponibles;
+
 	// ArrayList de estados activos del personaje (quemadura, veneno, renovar...)
-	// El profe pide ArrayList obligatoriamente para estados
+	// El profe pide ArrayList obligatoriamente para estados.
 	protected ArrayList<Estados> estadosActivos;
 
-	// ArrayList de hechizos que puede usar el personaje
-	// El profe pide ArrayList obligatoriamente para hechizos
+	// ArrayList de hechizos que puede usar el personaje.
+	// El profe pide ArrayList obligatoriamente para hechizos.
 	protected ArrayList<Hechizos> hechizos;
 
 	// Mapa para guardar los tiempos de recarga de los hechizos.
@@ -60,6 +65,7 @@ public abstract class Personajes {
 		this.poderMagico = poderMagico;
 
 		// Las listas y el mapa nacen vacios, se van llenando durante el juego
+		this.armasDisponibles = new ArrayList<>();
 		this.estadosActivos = new ArrayList<>();
 		this.hechizos = new ArrayList<>();
 		this.cooldowns = new HashMap<>();
@@ -136,6 +142,18 @@ public abstract class Personajes {
 	// Asigna un arma al personaje, reemplaza el arma que tenia antes
 	public void equiparArma(Armas nuevaArma) {
 		this.armaEquipada = nuevaArma;
+	}
+
+	// Añade un arma al ArrayList de armas disponibles.
+	// Se usa en CatalogoPersonajes al crear cada personaje.
+	public void agregarArmaDisponible(Armas arma) {
+		this.armasDisponibles.add(arma);
+	}
+
+	// Devuelve el ArrayList de armas disponibles.
+	// Se usa en Main para elegir aleatoriamente cual equipar al inicio.
+	public ArrayList<Armas> getArmasDisponibles() {
+		return armasDisponibles;
 	}
 
 	// -------------------------------------------------------------------------
