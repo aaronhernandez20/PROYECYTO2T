@@ -101,45 +101,49 @@ public class Combate {
 	// Ejecuta el turno de un personaje:
 	// Si tiene hechizos disponibles los usa, si no ataca con arma.
 	// Los hechizos de daño van a enemigos y los de curacion al aliado mas debil.
+	
 	private void ejecutarTurno(Personajes atacante, ArrayList<Personajes> enemigos, ArrayList<Personajes> aliados) {
-		// Recorremos el ArrayList de hechizos del personaje
-		for (Hechizos hechizo : atacante.getHechizos()) {
-			// Segun el tipo de objetivo del hechizo elegimos el blanco
-			if (hechizo.getTipoObjetivo() == Hechizos.TipoObjetivo.ENEMIGO_UNICO) {
-				Personajes objetivo = obtenerEnemigoVivo(enemigos);
-				if (objetivo != null) {
-					// puedeUsarse comprueba cooldown y recurso internamente
-					if (atacante.getCooldown(hechizo.getNombre()) == 0
-							&& atacante.getRecursoActual() >= hechizo.getCosteMana()) {
-						hechizo.lanzar(atacante, objetivo);
-						esperar(2000);
-						return; // usamos un hechizo, terminamos el turno
-					}
-				}
-			} else if (hechizo.getTipoObjetivo() == Hechizos.TipoObjetivo.ALIADO_UNICO) {
-				Personajes objetivo = obtenerAliadoMasDebil(aliados);
-				if (objetivo != null) {
-					if (atacante.getCooldown(hechizo.getNombre()) == 0
-							&& atacante.getRecursoActual() >= hechizo.getCosteMana()) {
-						hechizo.lanzar(atacante, objetivo);
-						esperar(2000);
-						return; // usamos un hechizo, terminamos el turno
-					}
-				}
-			}
-		}
+	    // Recorremos el ArrayList de hechizos del personaje
+	    for (Hechizos hechizo : atacante.getHechizos()) {
+	        // Segun el tipo de objetivo del hechizo elegimos el blanco
+	        if (hechizo.getTipoObjetivo() == Hechizos.TipoObjetivo.ENEMIGO_UNICO) {
+	            Personajes objetivo = obtenerEnemigoVivo(enemigos);
+	            if (objetivo != null) {
+	                // puedeUsarse comprueba cooldown y recurso internamente
+	                if (atacante.getCooldown(hechizo.getNombre()) == 0
+	                        && atacante.getRecursoActual() >= hechizo.getCosteMana()) {
+	                    hechizo.lanzar(atacante, objetivo);
+	                    esperar(1500);
+	                    System.out.println();
+	                    return; // usamos un hechizo, terminamos el turno
+	                }
+	            }
+	        } else if (hechizo.getTipoObjetivo() == Hechizos.TipoObjetivo.ALIADO_UNICO) {
+	            Personajes objetivo = obtenerAliadoMasDebil(aliados);
+	            if (objetivo != null) {
+	                if (atacante.getCooldown(hechizo.getNombre()) == 0
+	                        && atacante.getRecursoActual() >= hechizo.getCosteMana()) {
+	                    hechizo.lanzar(atacante, objetivo);
+	                    esperar(1500);
+	                    System.out.println();
+	                    return; // usamos un hechizo, terminamos el turno
+	                }
+	            }
+	        }
+	    }
 
-		// Si no ha podido usar ningun hechizo, ataca con el arma equipada
-		Personajes objetivo = obtenerEnemigoVivo(enemigos);
-		if (objetivo != null && atacante.getArmaEquipada() != null) {
-			int dano = atacante.getArmaEquipada().calcularDano(atacante, objetivo);
-			System.out.println(atacante.getNombre() + " ataca a "
-					+ objetivo.getNombre() + " con "
-					+ atacante.getArmaEquipada().getNombre()
-					+ ". ¡" + dano + " de daño!");
-			objetivo.recibirDano(dano);
-			esperar(2000);
-		}
+	    // Si no ha podido usar ningun hechizo, ataca con el arma equipada
+	    Personajes objetivo = obtenerEnemigoVivo(enemigos);
+	    if (objetivo != null && atacante.getArmaEquipada() != null) {
+	        int dano = atacante.getArmaEquipada().calcularDano(atacante, objetivo);
+	        System.out.println(atacante.getNombre() + " ataca a "
+	                + objetivo.getNombre() + " con "
+	                + atacante.getArmaEquipada().getNombre()
+	                + ". ¡" + dano + " de daño!");
+	        objetivo.recibirDano(dano);
+	        esperar(1500);
+	        System.out.println();
+	    }
 	}
 
 	// Muestra el estado de vida de todos los personajes al inicio de cada ronda.
