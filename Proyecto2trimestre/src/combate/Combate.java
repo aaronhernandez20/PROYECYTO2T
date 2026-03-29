@@ -1,6 +1,8 @@
 package combate;
 
 import java.util.ArrayList;
+import java.util.Scanner;
+
 import hechizos.Hechizos;
 import personajes.Personajes;
 
@@ -8,11 +10,105 @@ public class Combate {
 
 	private ArrayList<Personajes> equipoBueno;
 	private ArrayList<Personajes> equipoMalo;
+	private boolean modoManual;
+	private Scanner scanner = new Scanner(System.in);
+    ArrayList<String> opciones = new ArrayList<>();
 
-	public Combate(ArrayList<Personajes> equipoBueno, ArrayList<Personajes> equipoMalo) {
-		this.equipoBueno = equipoBueno;
-		this.equipoMalo = equipoMalo;
+
+	public Combate(ArrayList<Personajes> equipoBueno, ArrayList<Personajes> equipoMalo, boolean modoManual) {
+	    this.equipoBueno = equipoBueno;
+	    this.equipoMalo = equipoMalo;
+	    this.modoManual = modoManual;
 	}
+	private void ejecutarTurnoManual(Personajes atacante, ArrayList<Personajes> enemigos, ArrayList<Personajes> aliados) {
+	    System.out.println("  >> Turno de " + atacante.getNombre());
+	    System.out.println("  ------------------------------------------");
+	    
+	    // Construir opciones disponibles
+	    ArrayList<String> opciones = new ArrayList<>();
+
+	    // Añadir hechizos disponibles
+	    for (Hechizos hechizo : atacante.getHechizos()) {
+	        if (atacante.getCooldown(hechizo.getNombre()) == 0
+	                && atacante.getRecursoActual() >= hechizo.getCosteMana()) {
+	            opciones.add("HECHIZO:" + hechizo.getNombre());
+	            System.out.println("  " + opciones.size() + ". Usar hechizo: " + hechizo.getNombre()
+	                    + " [coste: " + hechizo.getCosteMana() + " mana]"
+	                    + " [CD: " + hechizo.getCooldownMaximo() + " turnos]");
+	        } else if (atacante.getCooldown(hechizo.getNombre()) > 0) {
+	            System.out.println("  X. " + hechizo.getNombre()
+	                    + " [en cooldown: " + atacante.getCooldown(hechizo.getNombre()) + " turnos]");
+	        } else {
+	            System.out.println("  X. " + hechizo.getNombre() + " [sin mana]");
+	        }
+	    }
+
+	 // Añadir opción de atacar con arma
+	    if (atacante.getArmaEquipada() != null) {
+	        opciones.add("ARMA");
+	        System.out.println("  " + opciones.size() + ". Atacar con " + atacante.getArmaEquipada().getNombre());
+	    }
+
+	    System.out.println("  ------------------------------------------");
+	    System.out.print("  Elige una opcion: ");
+
+	    // Leer opción válida
+	    int eleccion = -1;
+	    while (eleccion < 1 || eleccion > opciones.size()) {
+	        try {
+	            eleccion = scanner.nextInt();
+	            if (eleccion < 1 || eleccion > opciones.size()) {
+	                System.out.print("  Opcion no valida. Elige entre 1 y " + opciones.size() + ": ");
+	            }
+	        } catch (Exception e) {
+	            scanner.nextLine();
+	            System.out.print("  Opcion no valida. Elige entre 1 y " + opciones.size() + ": ");
+	        }
+	    }
+
+	    String opcionElegida = opciones.get(eleccion - 1);
+
+	    if (opcionElegida.equals("ARMA")) {
+	        // Atacar con arma a enemigo aleatorio
+	        Personajes objetivo = obtenerEnemigoVivo(enemigos);
+	        if (objetivo != null) {
+	            int dano = atacante.getArmaEquipada().calcularDano(atacante, objetivo);
+	            System.out.println("\n  " + atacante.getNombre() + " ataca a "
+	                    + objetivo.getNombre() + " con "
+	                    + atacante.getArmaEquipada().getNombre()
+	                    + ". ¡" + dano + " de daño!");
+	            objetivo.recibirDano(dano);
+	            esperar(1500);
+	            System.out.println();
+	        }
+	    } else {
+	        // Usar hechizo
+	        String nombreHechizo = opcionElegida.replace("HECHIZO:", "");
+	        Hechizos hechizoCargado = null;
+	        for (Hechizos h : atacante.getHechizos()) {
+	            if (h.getNombre().equals(nombreHechizo)) {
+	                hechizoCargado = h;
+	                break;
+	            }
+	        }
+	        if (hechizoCargado != null) {
+	            // Elegir objetivo según tipo
+	            Personajes objetivo;
+	            if (hechizoCargado.getTipoObjetivo() == Hechizos.TipoObjetivo.ENEMIGO_UNICO) {
+	                objetivo = obtenerEnemigoVivo(enemigos);
+	            } else {
+	                objetivo = obtenerAliadoMasDebil(aliados);
+	            }
+	            if (objetivo != null) {
+	                hechizoCargado.lanzar(atacante, objetivo);
+	                esperar(1500);
+	                System.out.println();
+	            }
+	        }
+	    }
+	}
+
+	    
 
 	// Pausa la ejecucion unos milisegundos para que la consola sea mas legible
 	private void esperar(int milisegundos) {
@@ -22,6 +118,8 @@ public class Combate {
 			e.printStackTrace();
 		}
 	}
+	
+	
 
 	// Muestra la presentacion inicial con los dos equipos antes de empezar
 	private void mostrarPresentacion() {
@@ -188,9 +286,13 @@ public class Combate {
 			System.out.println("[ACCIONES]");
 
 			for (Personajes atacante : equipoBueno) {
-				if (atacante.estaVivo()) {
-					ejecutarTurno(atacante, equipoMalo, equipoBueno);
-				}
+			    if (atacante.estaVivo()) {
+			        if (modoManual) {
+			            ejecutarTurnoManual(atacante, equipoMalo, equipoBueno);
+			        } else {
+			            ejecutarTurno(atacante, equipoMalo, equipoBueno);
+			        }
+			    }
 			}
 
 			for (Personajes atacante : equipoMalo) {
