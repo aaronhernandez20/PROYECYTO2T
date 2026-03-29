@@ -268,7 +268,6 @@ public class Combate {
 	}
 
 	// Muestra el estado de vida de todos los personajes al inicio de cada ronda.
-	// El profe pide que cada ronda imprima vida, recurso y estados activos.
 	private void mostrarEstadoRonda() {
 		System.out.println("\n  Equipo Geralt:");
 		for (Personajes p : equipoBueno) {
@@ -298,14 +297,11 @@ public class Combate {
 		while (hayVivos(equipoBueno) && hayVivos(equipoMalo)) {
 			System.out.println("=== RONDA " + ronda + " ===");
 
-			// El profe pide mostrar vida/recurso/estados al inicio de cada ronda
 			mostrarEstadoRonda();
 
-			// -----------------------------------------------------------------
 			// FASE 1: Acciones
 			// Primero actua el equipo bueno, luego el malo.
 			// Si un personaje muere durante la ronda ya no actua.
-			// -----------------------------------------------------------------
 			System.out.println("[ACCIONES]");
 
 			for (Personajes atacante : equipoBueno) {
@@ -324,10 +320,7 @@ public class Combate {
 				}
 			}
 
-			// -----------------------------------------------------------------
 			// FASE 2: Procesamiento de estados (daño/curacion por turno)
-			// El profe pide que esto se haga separado de las acciones.
-			// -----------------------------------------------------------------
 			System.out.println("\n[EFECTOS DE ESTADO]");
 
 			for (Personajes p : equipoBueno) {
@@ -350,9 +343,7 @@ public class Combate {
 				p.reducirCooldowns();
 			}
 
-			// -----------------------------------------------------------------
 			// FASE 3: Comprobar victoria
-			// -----------------------------------------------------------------
 			if (!hayVivos(equipoBueno) || !hayVivos(equipoMalo)) {
 				break;
 			}
@@ -361,7 +352,7 @@ public class Combate {
 			esperar(2000);
 		}
 
-		// Resumen final: el profe pide equipo ganador, rondas jugadas y estado final
+		// Resumen final
 		System.out.println("\n╔══════════════════════════════════════╗");
 		System.out.println("║           FIN DEL COMBATE            ║");
 		System.out.println("╚══════════════════════════════════════╝");

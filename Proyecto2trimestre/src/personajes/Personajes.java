@@ -39,16 +39,13 @@ public abstract class Personajes {
 	protected ArrayList<Armas> armasDisponibles;
 
 	// ArrayList de estados activos del personaje (quemadura, veneno, renovar...)
-	// El profe pide ArrayList obligatoriamente para estados.
 	protected ArrayList<Estados> estadosActivos;
 
 	// ArrayList de hechizos que puede usar el personaje.
-	// El profe pide ArrayList obligatoriamente para hechizos.
 	protected ArrayList<Hechizos> hechizos;
 
 	// Mapa para guardar los tiempos de recarga de los hechizos.
 	// Clave: nombre del hechizo, Valor: turnos que le quedan de cooldown.
-	// El profe pide Map obligatoriamente para cooldowns.
 	protected Map<String, Integer> cooldowns;
 
 	// Constructor base, todos los personajes nacen con estos datos
@@ -71,9 +68,7 @@ public abstract class Personajes {
 		this.cooldowns = new HashMap<>();
 	}
 
-	// -------------------------------------------------------------------------
 	// METODOS DE VIDA Y RECURSO
-	// -------------------------------------------------------------------------
 
 	// Devuelve true si el personaje sigue vivo, false si ha muerto
 	public boolean estaVivo() {
@@ -98,7 +93,6 @@ public abstract class Personajes {
 	}
 
 	// Recibe daño magico: ignora completamente la defensa del personaje.
-	// Lo usan los hechizos de los Magos segun las reglas del profe.
 	public void recibirDanoMagico(int cantidadDano) {
 		this.vidaActual -= cantidadDano;
 		// La vida no puede bajar nunca de 0
@@ -135,9 +129,7 @@ public abstract class Personajes {
 		}
 	}
 
-	// -------------------------------------------------------------------------
 	// METODOS DE ARMA
-	// -------------------------------------------------------------------------
 
 	// Asigna un arma al personaje, reemplaza el arma que tenia antes
 	public void equiparArma(Armas nuevaArma) {
@@ -156,12 +148,8 @@ public abstract class Personajes {
 		return armasDisponibles;
 	}
 
-	// -------------------------------------------------------------------------
-	// METODOS DE ESTADOS (ArrayList obligatorio segun el profe)
-	// -------------------------------------------------------------------------
 
 	// Recibe el estado que se quiere aplicar al personaje.
-	// REGLA DEL PROFE: si ya tiene ese estado lo renueva, si no lo tiene lo añade.
 	// Esto evita que se apilen varias quemaduras a la vez.
 	public void aplicarEstados(Estados nuevoEstado) {
 		// Recorremos el ArrayList de estados activos buscando uno con el mismo nombre
@@ -201,7 +189,6 @@ public abstract class Personajes {
 	}
 
 	// -------------------------------------------------------------------------
-	// METODOS DE HECHIZOS Y COOLDOWNS (Map obligatorio segun el profe)
 	// -------------------------------------------------------------------------
 
 	// Añade un hechizo al ArrayList de hechizos del personaje.
@@ -233,11 +220,9 @@ public abstract class Personajes {
 	}
 
 	// -------------------------------------------------------------------------
-	// RESUMEN DE COMBATE (obligatorio segun el profe)
 	// -------------------------------------------------------------------------
 
 	// Muestra en consola el estado completo del personaje durante el combate.
-	// El profe pide: nombre, vida, recurso, arma equipada y estados activos.
 	public void resumenCombate() {
 		System.out.println("  " + this.nombre);
 		System.out.println("  Vida:    " + this.vidaActual + "/" + this.vidaMax + " HP");

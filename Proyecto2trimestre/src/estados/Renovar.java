@@ -76,7 +76,6 @@ public class Renovar extends Estados {
     }
 
     // Devuelve true si Renovar fue aplicado por un Sacerdote.
-    // Esto Aaron es util para saber desde fuera si tiene el bonus activo.
 
     public boolean isAplicadoPorSacerdote() {
         return aplicadoPorSacerdote;
