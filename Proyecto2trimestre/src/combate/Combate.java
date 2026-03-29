@@ -149,7 +149,7 @@ public class Combate {
 	// Muestra el estado de vida de todos los personajes al inicio de cada ronda.
 	// El profe pide que cada ronda imprima vida, recurso y estados activos.
 	private void mostrarEstadoRonda() {
-		System.out.println("\n  ⚔️ Equipo Geralt:");
+		System.out.println("\n  Equipo Geralt:");
 		for (Personajes p : equipoBueno) {
 			if (p.estaVivo()) {
 				p.resumenCombate();
@@ -157,7 +157,7 @@ public class Combate {
 				System.out.println("  " + p.getNombre() + " [MUERTO]");
 			}
 		}
-		System.out.println("  💀 La Cacería Salvaje:");
+		System.out.println("   La Cacería Salvaje:");
 		for (Personajes p : equipoMalo) {
 			if (p.estaVivo()) {
 				p.resumenCombate();
@@ -243,17 +243,17 @@ public class Combate {
 		System.out.println("Rondas jugadas: " + ronda);
 
 		if (hayVivos(equipoBueno)) {
-			System.out.println("🏆 ¡El equipo de Geralt ha ganado!");
+			System.out.println(" ¡El equipo de Geralt ha ganado!");
 		} else {
-			System.out.println("💀 ¡La Cacería Salvaje ha ganado!");
+			System.out.println(" ¡La Cacería Salvaje ha ganado!");
 		}
 
 		System.out.println("\n--- Estado final de los personajes ---");
-		System.out.println("⚔️  Equipo de Geralt:");
+		System.out.println("  Equipo de Geralt:");
 		for (Personajes p : equipoBueno) {
 			p.resumenCombate();
 		}
-		System.out.println("💀  La Cacería Salvaje:");
+		System.out.println("  La Cacería Salvaje:");
 		for (Personajes p : equipoMalo) {
 			p.resumenCombate();
 		}
