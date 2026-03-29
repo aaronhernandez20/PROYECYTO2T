@@ -68,7 +68,6 @@ public class Renovar extends Estados {
         System.out.println("El efecto Renovar de " + objetivo.getNombre() + " ha terminado.");
     }
 
-    // Lo que hace es si se aplica veneno a alguien que ya lo tiene,
     // se reinicia la duración a este valor en vez de apilar uno nuevo.
 
     public int getTurnosMaximos() {
