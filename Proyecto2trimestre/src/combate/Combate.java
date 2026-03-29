@@ -49,13 +49,13 @@ public class Combate {
 	    }
 
 	    System.out.println("\n  Initializing combat sequence...");
-	    esperar(1000);
+	    esperar(2000);
 	    System.out.println("  All units ready.");
 	    esperar(500);
 	    System.out.println("\n==========================================================");
 	    System.out.println("                    COMBAT START                         ");
 	    System.out.println("==========================================================\n");
-	    esperar(1500);
+	    esperar(2000);
 	}
 	// Devuelve true si algún personaje del equipo sigue vivo
 	private boolean hayVivos(ArrayList<Personajes> equipo) {
@@ -112,7 +112,7 @@ public class Combate {
 					if (atacante.getCooldown(hechizo.getNombre()) == 0
 							&& atacante.getRecursoActual() >= hechizo.getCosteMana()) {
 						hechizo.lanzar(atacante, objetivo);
-						esperar(1000);
+						esperar(2000);
 						return; // usamos un hechizo, terminamos el turno
 					}
 				}
@@ -122,7 +122,7 @@ public class Combate {
 					if (atacante.getCooldown(hechizo.getNombre()) == 0
 							&& atacante.getRecursoActual() >= hechizo.getCosteMana()) {
 						hechizo.lanzar(atacante, objetivo);
-						esperar(1000);
+						esperar(2000);
 						return; // usamos un hechizo, terminamos el turno
 					}
 				}
@@ -138,7 +138,7 @@ public class Combate {
 					+ atacante.getArmaEquipada().getNombre()
 					+ ". ¡" + dano + " de daño!");
 			objetivo.recibirDano(dano);
-			esperar(1000);
+			esperar(2000);
 		}
 	}
 
@@ -229,7 +229,7 @@ public class Combate {
 			}
 
 			ronda++;
-			esperar(1500);
+			esperar(2000);
 		}
 
 		// Resumen final: el profe pide equipo ganador, rondas jugadas y estado final
