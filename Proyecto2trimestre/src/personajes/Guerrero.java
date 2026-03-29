@@ -14,7 +14,6 @@ public class Guerrero extends Personajes {
 			int poderMagico, int defensaAdrenalina, double probBloqueo) {
 		super(nombre, vidaMax, recursoMax, ataqueBase, defensaBase, poderMagico);
 		this.defensaAdrenalina = defensaAdrenalina;
-		// CORRECCION: antes faltaba esta linea y probBloqueo siempre valia 0.0
 		this.probBloqueo = probBloqueo;
 	}
 
