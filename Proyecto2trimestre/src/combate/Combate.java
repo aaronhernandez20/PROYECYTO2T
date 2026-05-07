@@ -53,12 +53,13 @@ public class Combate {
 	    System.out.print("  Elige una opcion: ");
 
 	    // Leer opción válida
+	    //posicion 0, leer si es valido el numero introducido
 	    int eleccion = -1;
 	    while (eleccion < 1 || eleccion > opciones.size()) {
 	        try {
 	            eleccion = scanner.nextInt();
 	            if (eleccion < 1 || eleccion > opciones.size()) {
-	                System.out.print("  Opcion no valida. Elige entre 1 y " + opciones.size() + ": ");
+	                System.out.print("   Opcion no valida. Elige entre 1 y " + opciones.size() + ": ");
 	            }
 	        } catch (Exception e) {
 	            scanner.nextLine();

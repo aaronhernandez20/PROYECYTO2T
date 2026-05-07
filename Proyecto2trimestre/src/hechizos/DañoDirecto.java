@@ -32,12 +32,12 @@ public class DañoDirecto extends Hechizos {
         if (lanzador instanceof Mago) {
             Mago mago = (Mago) lanzador;
             dano = (int) (dano * mago.getMultiplicadorMagico());
-            System.out.println("  ✦ " + lanzador.getNombre() + " lanza «" + nombre
+            System.out.println("  " + lanzador.getNombre() + " lanza «" + nombre
                     + "» sobre " + blanco.getNombre() + " ¡El hechizo ignora su defensa!");
             // recibirDanoMagico ignora defensaBase (daño 100%)
             blanco.recibirDanoMagico(dano);
         } else {
-            System.out.println("  ✦ " + lanzador.getNombre() + " lanza «" + nombre
+            System.out.println("   " + lanzador.getNombre() + " lanza «" + nombre
                     + "» sobre " + blanco.getNombre() + ".");
             blanco.recibirDano(dano);
         }
