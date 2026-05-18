@@ -4,14 +4,16 @@ import java.util.ArrayList;
 import personajes.*;
 import armas.*;
 import hechizos.*;
+import logros.GestorLogros;
 import catalogo.CatalogoPersonajes;
 import combate.Combate;
 import java.util.Scanner;
 
 
 
-public class Main {
 
+public class Main {
+    public static GestorLogros logros = new GestorLogros();
 	public static void main(String[] args) {
 	    ArrayList<Personajes> equipoBueno = crearEquipoBueno();
 	    ArrayList<Personajes> equipoMalo = crearEquipoMalo();
@@ -24,6 +26,8 @@ public class Main {
 
 	    Combate combate = new Combate(equipoBueno, equipoMalo, modoManual);
 	    combate.iniciar();
+	    logros.mostrarLogros();
+
 	}
 	
 	

@@ -32,7 +32,10 @@ public class ArmaCuerpoACuerpo extends Armas {
         // y el daño se multiplica por 2.
         if (Math.random() < this.probCritico) {
             danoTotal = danoTotal * 2;
+            main.Main.logros.registrarCritico();  
+
         }
+        main.Main.logros.registrarDanoInfligido(danoTotal);   
 
         return danoTotal;
     }
