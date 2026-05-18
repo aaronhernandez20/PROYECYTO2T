@@ -1,37 +1,40 @@
 package main;
 
 import java.util.ArrayList;
+import java.util.List;
 import personajes.*;
-import armas.*;
 import hechizos.*;
+import db.ConexionBD;
 import catalogo.CatalogoPersonajes;
 import combate.Combate;
 import java.util.Scanner;
 
-
-
 public class Main {
 
-	public static void main(String[] args) {
-	    ArrayList<Personajes> equipoBueno = crearEquipoBueno();
-	    ArrayList<Personajes> equipoMalo = crearEquipoMalo();
-	    Scanner scanner = new Scanner(System.in);
-	    System.out.println("Selecciona modo de juego:");
-	    System.out.println("1. Automatico");
-	    System.out.println("2. Manual (controlas el equipo de Geralt)");
-	    int modo = scanner.nextInt();
-	    boolean modoManual = (modo == 2);
+    public static void main(String[] args) {
+        ArrayList<Personajes> equipoBueno = crearEquipoBueno();
+        ArrayList<Personajes> equipoMalo = crearEquipoMalo();
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Selecciona modo de juego:");
+        System.out.println("1. Automatico");
+        System.out.println("2. Manual (controlas el equipo de Geralt)");
+        int modo = scanner.nextInt();
+        scanner.close();
+        boolean modoManual = (modo == 2);
 
-	    Combate combate = new Combate(equipoBueno, equipoMalo, modoManual);
-	    combate.iniciar();
-	}
-	
-	
-	public static ArrayList<Personajes> crearEquipoBueno() {
-		// TODO Auto-generated method stub
-		// equipo bueno
-		ArrayList<Personajes> equipoBueno = new ArrayList<>();
-		Personajes geralt = CatalogoPersonajes.crearGeralt();
+        Combate combate = new Combate(equipoBueno, equipoMalo, modoManual);
+        combate.iniciar();
+
+        // PRUEBA DE CONEXION - borrar después
+        List<Object[]> test = ConexionBD.consultar("SELECT nombre FROM PERSONAJES");
+        System.out.println("Personajes en BD: " + test.size()); // debe imprimir 6
+    }
+
+    public static ArrayList<Personajes> crearEquipoBueno() {
+        // TODO Auto-generated method stub
+        // equipo bueno
+        ArrayList<Personajes> equipoBueno = new ArrayList<>();
+        Personajes geralt = CatalogoPersonajes.crearGeralt();
         asignarArmaAleatoria(geralt);
         // Hechizos de Geralt: habilidad fisica con cooldown (segun el profe el guerrero
         // puede tenerlas)
@@ -93,5 +96,5 @@ public class Main {
             personaje.equiparArma(personaje.getArmasDisponibles().get(1));
         }
     }
-    
+
 }
