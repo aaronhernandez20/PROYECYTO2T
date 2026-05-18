@@ -57,6 +57,7 @@ public abstract class Hechizos {
     // Se llama desde lanzar() una vez que el hechizo se ha ejecutado con éxito.
     public void ponerEnCooldown(Personajes lanzador) {
         lanzador.setCooldown(this.nombre, this.cooldownMaximo);
+        main.Main.logros.registrarHechizoLanzado();
     }
 
     // Reduce el cooldown en 1 al final de cada turno del lanzador.

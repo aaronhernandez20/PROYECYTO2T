@@ -36,5 +36,6 @@ public class CuraciónDirecta extends Hechizos {
         }
 
         ponerEnCooldown(lanzador);
+        main.Main.logros.registrarCuracion(this.potenciaBase);
     }
 }
