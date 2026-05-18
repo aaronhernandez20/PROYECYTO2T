@@ -32,8 +32,9 @@ public class ArmaADistancia extends Armas {
         // y el daño se multiplica por 3.
         if (Math.random() < this.probCritico) {
             danoTotal = danoTotal * 3;
+            main.Main.logros.registrarCritico();
         }
-
+        main.Main.logros.registrarDanoInfligido(danoTotal);
         return danoTotal;
     }
 }

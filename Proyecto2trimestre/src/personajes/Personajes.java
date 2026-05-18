@@ -78,6 +78,10 @@ public abstract class Personajes {
 	// Resta el daño recibido teniendo en cuenta la defensa del personaje.
 	// La defensa absorbe parte del daño antes de que llegue a la vida.
 	public void recibirDano(int cantidadDano) {
+		if (this.nombre.equalsIgnoreCase("Geralt de Rivia")) {
+	        main.Main.logros.registrarDanoAGeralt();
+	    }
+
 		int danoFinal = cantidadDano - this.defensaBase;
 		// Si la defensa supera el daño, el daño queda en 0 (no cura)
 		if (danoFinal < 0) {
@@ -94,6 +98,10 @@ public abstract class Personajes {
 
 	// Recibe daño magico: ignora completamente la defensa del personaje.
 	public void recibirDanoMagico(int cantidadDano) {
+		if (this.nombre.equalsIgnoreCase("Geralt de Rivia")) {
+	        main.Main.logros.registrarDanoAGeralt();
+	    }
+
 		this.vidaActual -= cantidadDano;
 		// La vida no puede bajar nunca de 0
 		if (this.vidaActual < 0) {

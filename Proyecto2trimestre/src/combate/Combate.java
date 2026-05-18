@@ -6,6 +6,8 @@ import java.util.Scanner;
 import hechizos.Hechizos;
 import personajes.Personajes;
 
+
+
 public class Combate {
 
 	private ArrayList<Personajes> equipoBueno;
@@ -365,6 +367,18 @@ public class Combate {
 			System.out.println(" ¡La Cacería Salvaje ha ganado!");
 		}
 
+		
+		// Comprobar logros al final del combate
+		boolean ganado = hayVivos(equipoBueno);
+		Personajes[] aliados = equipoBueno.toArray(new Personajes[0]);
+		main.Main.logros.comprobarFinCombate(ganado, aliados);
+
+		// Registrar muerte de enemigos importantes
+		for (Personajes enemigo : equipoMalo) {
+		    if (!enemigo.estaVivo()) {
+		        main.Main.logros.registrarMuerteEnemigo(enemigo);
+		    }
+		}
 		System.out.println("\n--- Estado final de los personajes ---");
 		System.out.println("  Equipo de Geralt:");
 		for (Personajes p : equipoBueno) {

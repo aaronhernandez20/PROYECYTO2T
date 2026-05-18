@@ -29,6 +29,7 @@ public class CuraciónEnElTiempo extends Hechizos {
 
         // Si lo lanza un Sacerdote, Renovar cura +20 HP extra por turno
         if (lanzador instanceof Sacerdote) {
+        	main.Main.logros.registrarRenovarPorSacerdote();
             Renovar renovarMejorado = new Renovar(true); // true = aplicado por Sacerdote
             blanco.aplicarEstados(renovarMejorado);
             System.out.println("  (Renovar potenciado: +20 HP extra por turno gracias al Sacerdote)");
