@@ -11,6 +11,7 @@ import db.EstadoPartida;
 import db.PersistenciaPartida;
 import logros.GestorLogros;
 import personajes.Personajes;
+import ranking.Ranking;
 
 public class Main {
 
@@ -18,60 +19,85 @@ public class Main {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        boolean seguir = true;
 
-        System.out.println("=== WITCHER RPG ===");
-        System.out.println("1. Nueva partida");
-        System.out.println("2. Cargar partida");
-        System.out.print("Elige una opcion: ");
-        int opcion = scanner.nextInt();
+        while (seguir) {
+            System.out.println("\n=== WITCHER RPG ===");
+            System.out.println("1. Nueva partida");
+            System.out.println("2. Cargar partida");
+            System.out.println("3. Ver ranking");
+            System.out.println("4. Salir");
+            System.out.print("Elige una opcion: ");
+            int opcion = scanner.nextInt();
 
-        ArrayList<Personajes> equipoBueno;
-        ArrayList<Personajes> equipoMalo;
-        int idCombate = 0;
-        int rondaInicio = 1;
+            if (opcion == 4) {
+                seguir = false;
+                break;
+            }
 
-        if (opcion == 2) {
-            PersistenciaPartida.listarPartidas();
-            System.out.print("Introduce el ID de la partida: ");
-            int idSeleccionado = scanner.nextInt();
-            EstadoPartida estado = PersistenciaPartida.cargarEstado(idSeleccionado);
+            if (opcion == 3) {
+                Ranking.mostrarRanking();
+                continue;
+            }
 
-            if (estado == null) {
-                System.out.println("Partida no encontrada. Iniciando nueva partida...");
+            ArrayList<Personajes> equipoBueno;
+            ArrayList<Personajes> equipoMalo;
+            int idCombate = 0;
+            int rondaInicio = 1;
+
+            if (opcion == 2) {
+                List<Object[]> partidas = ConexionBD.consultar(
+                    "SELECT ID_COMBATE FROM COMBATE WHERE resumenFinal IS NULL");
+
+                if (partidas.size() == 0) {
+                    System.out.println("No hay partidas guardadas. Iniciando nueva partida...");
+                    equipoBueno = crearEquipoBueno();
+                    equipoMalo = crearEquipoMalo();
+                } else {
+                    PersistenciaPartida.listarPartidas();
+                    System.out.print("Introduce el ID de la partida: ");
+                    int idSeleccionado = scanner.nextInt();
+                    EstadoPartida estado = PersistenciaPartida.cargarEstado(idSeleccionado);
+
+                    if (estado == null) {
+                        System.out.println("Partida no encontrada. Iniciando nueva partida...");
+                        equipoBueno = crearEquipoBueno();
+                        equipoMalo = crearEquipoMalo();
+                    } else {
+                        equipoBueno = estado.equipoBueno;
+                        equipoMalo = estado.equipoMalo;
+                        idCombate = estado.idCombate;
+                        rondaInicio = estado.rondaActual + 1;
+                    }
+                }
+            } else {
                 equipoBueno = crearEquipoBueno();
                 equipoMalo = crearEquipoMalo();
-            } else {
-                equipoBueno = estado.equipoBueno;
-                equipoMalo = estado.equipoMalo;
-                idCombate = estado.idCombate;
-                rondaInicio = estado.rondaActual + 1;
             }
-        } else {
-            equipoBueno = crearEquipoBueno();
-            equipoMalo = crearEquipoMalo();
+
+            System.out.println("Selecciona modo de juego:");
+            System.out.println("1. Automatico");
+            System.out.println("2. Manual (controlas el equipo de Geralt)");
+            System.out.print("Elige una opcion: ");
+            int modo = scanner.nextInt();
+            boolean modoManual = (modo == 2);
+
+            Combate combate;
+            if (idCombate > 0) {
+                combate = new Combate(equipoBueno, equipoMalo, modoManual, idCombate, rondaInicio);
+            } else {
+                combate = new Combate(equipoBueno, equipoMalo, modoManual);
+            }
+
+            combate.iniciar();
+            logros.mostrarLogros();
+
+            // PRUEBA DE CONEXION - borrar después
+            List<Object[]> test = ConexionBD.consultar("SELECT nombre FROM PERSONAJES");
+            System.out.println("Personajes en BD: " + test.size()); // debe imprimir 6
         }
 
-        System.out.println("Selecciona modo de juego:");
-        System.out.println("1. Automatico");
-        System.out.println("2. Manual (controlas el equipo de Geralt)");
-        System.out.print("Elige una opcion: ");
-        int modo = scanner.nextInt();
         scanner.close();
-        boolean modoManual = (modo == 2);
-
-        Combate combate;
-        if (idCombate > 0) {
-            combate = new Combate(equipoBueno, equipoMalo, modoManual, idCombate, rondaInicio);
-        } else {
-            combate = new Combate(equipoBueno, equipoMalo, modoManual);
-        }
-
-        combate.iniciar();
-        logros.mostrarLogros();
-
-        // PRUEBA DE CONEXION - borrar después
-        List<Object[]> test = ConexionBD.consultar("SELECT nombre FROM PERSONAJES");
-        System.out.println("Personajes en BD: " + test.size()); // debe imprimir 6
     }
 
     public static ArrayList<Personajes> crearEquipoBueno() {
