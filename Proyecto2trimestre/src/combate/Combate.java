@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 import db.PersistenciaPartida;
 import hechizos.Hechizos;
+import historial.GestorHistorial;
 import personajes.Personajes;
 
 
@@ -311,10 +312,21 @@ public class Combate {
 		    idCombate = PersistenciaPartida.nuevaPartida();
 		}
 
+		GestorHistorial.registrar(idCombate, 0, "Combate iniciado. Equipo Geralt vs La Caceria Salvaje.");
+
 		int ronda = rondaInicio;
 
 		while (hayVivos(equipoBueno) && hayVivos(equipoMalo)) {
 			System.out.println("=== RONDA " + ronda + " ===");
+
+			// Guardamos quien estaba vivo al inicio de la ronda para detectar muertes
+			ArrayList<Personajes> vivosAlInicio = new ArrayList<>();
+			for (Personajes p : equipoBueno) {
+			    if (p.estaVivo()) vivosAlInicio.add(p);
+			}
+			for (Personajes p : equipoMalo) {
+			    if (p.estaVivo()) vivosAlInicio.add(p);
+			}
 
 			mostrarEstadoRonda();
 
@@ -362,6 +374,18 @@ public class Combate {
 				p.reducirCooldowns();
 			}
 
+			// Registrar solo los que han muerto en ESTA ronda (estaban vivos al inicio)
+			for (Personajes p : vivosAlInicio) {
+			    if (!p.estaVivo()) {
+			        boolean esAliado = equipoBueno.contains(p);
+			        if (esAliado) {
+			            GestorHistorial.registrar(idCombate, ronda, p.getNombre() + " ha caido en combate.");
+			        } else {
+			            GestorHistorial.registrar(idCombate, ronda, p.getNombre() + " ha sido derrotado.");
+			        }
+			    }
+			}
+
 			// Guardamos el estado al final de cada ronda
 			PersistenciaPartida.guardarEstado(idCombate, equipoBueno, equipoMalo, ronda);
 
@@ -388,6 +412,7 @@ public class Combate {
 
 		// Guardar resultado final en la BD
 		String resultado = hayVivos(equipoBueno) ? "Victoria de Geralt" : "Victoria de la Caceria Salvaje";
+		GestorHistorial.registrar(idCombate, ronda, "Combate terminado en " + ronda + " rondas. " + resultado + ".");
 		PersistenciaPartida.finalizarPartida(idCombate, ronda, resultado);
 
 		// Comprobar logros al final del combate
