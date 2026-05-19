@@ -12,6 +12,7 @@ import db.PersistenciaPartida;
 import logros.GestorLogros;
 import personajes.Personajes;
 import ranking.Ranking;
+import visualizacion.EstadisticasVisualizar;
 
 public class Main {
 
@@ -26,17 +27,23 @@ public class Main {
             System.out.println("1. Nueva partida");
             System.out.println("2. Cargar partida");
             System.out.println("3. Ver ranking");
-            System.out.println("4. Salir");
+            System.out.println("4. Ver estadisticas");
+            System.out.println("5. Salir");
             System.out.print("Elige una opcion: ");
             int opcion = scanner.nextInt();
 
-            if (opcion == 4) {
+            if (opcion == 5) {
                 seguir = false;
                 break;
             }
 
             if (opcion == 3) {
                 Ranking.mostrarRanking();
+                continue;
+            }
+
+            if (opcion == 4) {
+                EstadisticasVisualizar.mostrarVidaInicial();
                 continue;
             }
 
