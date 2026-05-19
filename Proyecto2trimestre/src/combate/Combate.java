@@ -314,19 +314,13 @@ public class Combate {
 
 		GestorHistorial.registrar(idCombate, 0, "Combate iniciado. Equipo Geralt vs La Caceria Salvaje.");
 
+		// Lista de personajes cuya muerte ya ha sido registrada, para no repetir
+		ArrayList<String> yaRegistrados = new ArrayList<>();
+
 		int ronda = rondaInicio;
 
 		while (hayVivos(equipoBueno) && hayVivos(equipoMalo)) {
 			System.out.println("=== RONDA " + ronda + " ===");
-
-			// Guardamos quien estaba vivo al inicio de la ronda para detectar muertes
-			ArrayList<Personajes> vivosAlInicio = new ArrayList<>();
-			for (Personajes p : equipoBueno) {
-			    if (p.estaVivo()) vivosAlInicio.add(p);
-			}
-			for (Personajes p : equipoMalo) {
-			    if (p.estaVivo()) vivosAlInicio.add(p);
-			}
 
 			mostrarEstadoRonda();
 
@@ -374,15 +368,17 @@ public class Combate {
 				p.reducirCooldowns();
 			}
 
-			// Registrar solo los que han muerto en ESTA ronda (estaban vivos al inicio)
-			for (Personajes p : vivosAlInicio) {
-			    if (!p.estaVivo()) {
-			        boolean esAliado = equipoBueno.contains(p);
-			        if (esAliado) {
-			            GestorHistorial.registrar(idCombate, ronda, p.getNombre() + " ha caido en combate.");
-			        } else {
-			            GestorHistorial.registrar(idCombate, ronda, p.getNombre() + " ha sido derrotado.");
-			        }
+			// Registrar muertes de esta ronda (solo si no se han registrado ya antes)
+			for (Personajes p : equipoBueno) {
+			    if (!p.estaVivo() && !yaRegistrados.contains(p.getNombre())) {
+			        yaRegistrados.add(p.getNombre());
+			        GestorHistorial.registrar(idCombate, ronda, p.getNombre() + " ha caido en combate.");
+			    }
+			}
+			for (Personajes p : equipoMalo) {
+			    if (!p.estaVivo() && !yaRegistrados.contains(p.getNombre())) {
+			        yaRegistrados.add(p.getNombre());
+			        GestorHistorial.registrar(idCombate, ronda, p.getNombre() + " ha sido derrotado.");
 			    }
 			}
 
