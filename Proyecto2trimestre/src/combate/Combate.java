@@ -3,6 +3,7 @@ package combate;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import db.PersistenciaPartida;
 import hechizos.Hechizos;
 import personajes.Personajes;
 
@@ -13,6 +14,8 @@ public class Combate {
 	private ArrayList<Personajes> equipoBueno;
 	private ArrayList<Personajes> equipoMalo;
 	private boolean modoManual;
+	private int idCombate = 0;
+	private int rondaInicio = 1;
 	private Scanner scanner = new Scanner(System.in);
     ArrayList<String> opciones = new ArrayList<>();
 
@@ -21,6 +24,14 @@ public class Combate {
 	    this.equipoBueno = equipoBueno;
 	    this.equipoMalo = equipoMalo;
 	    this.modoManual = modoManual;
+	}
+
+	// Constructor para continuar una partida cargada desde la BD.
+	public Combate(ArrayList<Personajes> equipoBueno, ArrayList<Personajes> equipoMalo,
+	               boolean modoManual, int idCombate, int rondaInicio) {
+	    this(equipoBueno, equipoMalo, modoManual);
+	    this.idCombate = idCombate;
+	    this.rondaInicio = rondaInicio;
 	}
 	private void ejecutarTurnoManual(Personajes atacante, ArrayList<Personajes> enemigos, ArrayList<Personajes> aliados) {
 	    System.out.println("  >> Turno de " + atacante.getNombre());
@@ -295,7 +306,12 @@ public class Combate {
 		// Mostramos la presentacion inicial antes de empezar
 		mostrarPresentacion();
 
-		int ronda = 1;
+		// Si es partida nueva la registramos en la BD
+		if (idCombate == 0) {
+		    idCombate = PersistenciaPartida.nuevaPartida();
+		}
+
+		int ronda = rondaInicio;
 
 		while (hayVivos(equipoBueno) && hayVivos(equipoMalo)) {
 			System.out.println("=== RONDA " + ronda + " ===");
@@ -346,6 +362,9 @@ public class Combate {
 				p.reducirCooldowns();
 			}
 
+			// Guardamos el estado al final de cada ronda
+			PersistenciaPartida.guardarEstado(idCombate, equipoBueno, equipoMalo, ronda);
+
 			// FASE 3: Comprobar victoria
 			if (!hayVivos(equipoBueno) || !hayVivos(equipoMalo)) {
 				break;
@@ -367,7 +386,10 @@ public class Combate {
 			System.out.println(" ¡La Cacería Salvaje ha ganado!");
 		}
 
-		
+		// Guardar resultado final en la BD
+		String resultado = hayVivos(equipoBueno) ? "Victoria de Geralt" : "Victoria de la Caceria Salvaje";
+		PersistenciaPartida.finalizarPartida(idCombate, ronda, resultado);
+
 		// Comprobar logros al final del combate
 		boolean ganado = hayVivos(equipoBueno);
 		Personajes[] aliados = equipoBueno.toArray(new Personajes[0]);

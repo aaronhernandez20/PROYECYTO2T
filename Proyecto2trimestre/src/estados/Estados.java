@@ -44,6 +44,7 @@ public abstract class Estados {
     // termina.
     public abstract void alExpirar(Personajes objetivo);
 
+
     // Esta es la Logica de duracion
 
     // Reduce en 1 la duración del estado y esta debe llamarse al final de cada
@@ -64,6 +65,11 @@ public abstract class Estados {
     public void renovarDuracion(int nuevosTurnos) {
         this.turnosRestantes = nuevosTurnos;
         System.out.println("  [ESTADO] " + nombre + " ha sido renovado (" + nuevosTurnos + " turnos).");
+    }
+
+    // Ajusta los turnos restantes al cargar desde la BD, sin efectos de sonido/texto.
+    public void setTurnosRestantes(int turnos) {
+        this.turnosRestantes = turnos;
     }
 
     // Devuelve true si el estado sigue activo.
