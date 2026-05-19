@@ -67,6 +67,11 @@ public abstract class Estados {
         System.out.println("  [ESTADO] " + nombre + " ha sido renovado (" + nuevosTurnos + " turnos).");
     }
 
+    // Ajusta los turnos restantes al cargar desde la BD, sin efectos de sonido/texto.
+    public void setTurnosRestantes(int turnos) {
+        this.turnosRestantes = turnos;
+    }
+
     // Devuelve true si el estado sigue activo.
     public boolean estaActivo() {
         return turnosRestantes > 0;

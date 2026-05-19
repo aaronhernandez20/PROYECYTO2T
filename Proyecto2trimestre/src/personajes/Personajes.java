@@ -12,6 +12,9 @@ import hechizos.Hechizos;
 // Es abstracta porque no se puede crear un personaje generico, siempre sera uno de los 3.
 public abstract class Personajes {
 
+	// ID que corresponde al registro de este personaje en la base de datos
+	protected int id;
+
 	// Nombre del personaje que se muestra en el combate
 	protected String nombre;
 
@@ -258,6 +261,23 @@ public abstract class Personajes {
 	// -------------------------------------------------------------------------
 	// GETTERS
 	// -------------------------------------------------------------------------
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	// Setters para restaurar el estado desde la base de datos al cargar partida
+	public void setVidaActual(int vidaActual) {
+		this.vidaActual = vidaActual;
+	}
+
+	public void setRecursoActual(int recursoActual) {
+		this.recursoActual = recursoActual;
+	}
 
 	public String getNombre() {
 		return nombre;
