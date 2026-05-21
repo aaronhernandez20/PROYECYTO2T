@@ -68,10 +68,7 @@ public class Main {
                 if (partidas.size() == 0) {
                     System.out.println("No hay partidas guardadas. Iniciando nueva partida...");
                     scanner.nextLine();
-                    System.out.print("¿Como te llamas, Cazador de Brujas? ");
-                    String nombre = scanner.nextLine().trim();
-                    if (nombre.isEmpty()) nombre = "Anonimo";
-                    idJugador = PersistenciaPartida.obtenerOCrearJugador(nombre);
+                    idJugador = PersistenciaPartida.obtenerOCrearJugador(pedirNombre(scanner));
                     equipoBueno = crearEquipoBueno();
                     equipoMalo = crearEquipoMalo();
                 } else {
@@ -83,10 +80,7 @@ public class Main {
                     if (estado == null) {
                         System.out.println("Partida no encontrada. Iniciando nueva partida...");
                         scanner.nextLine();
-                        System.out.print("¿Como te llamas, Cazador de Brujas? ");
-                        String nombre = scanner.nextLine().trim();
-                        if (nombre.isEmpty()) nombre = "Anonimo";
-                        idJugador = PersistenciaPartida.obtenerOCrearJugador(nombre);
+                        idJugador = PersistenciaPartida.obtenerOCrearJugador(pedirNombre(scanner));
                         equipoBueno = crearEquipoBueno();
                         equipoMalo = crearEquipoMalo();
                     } else {
@@ -99,10 +93,7 @@ public class Main {
                 }
             } else {
                 scanner.nextLine();
-                System.out.print("¿Como te llamas, Cazador de Brujas? ");
-                String nombre = scanner.nextLine().trim();
-                if (nombre.isEmpty()) nombre = "Anonimo";
-                idJugador = PersistenciaPartida.obtenerOCrearJugador(nombre);
+                idJugador = PersistenciaPartida.obtenerOCrearJugador(pedirNombre(scanner));
                 equipoBueno = crearEquipoBueno();
                 equipoMalo = crearEquipoMalo();
             }
@@ -162,6 +153,26 @@ public class Main {
         equipoMalo.add(eredin);
 
         return equipoMalo;
+    }
+
+    private static String pedirNombre(Scanner scanner) {
+        while (true) {
+            System.out.print("¿Como te llamas, Cazador? ");
+            String nombre = scanner.nextLine().trim();
+            if (nombre.isEmpty()) {
+                System.out.println("  Error: el nombre no puede estar vacio.");
+                continue;
+            }
+            if (nombre.length() > 20) {
+                System.out.println("  Error: el nombre no puede tener mas de 20 letras.");
+                continue;
+            }
+            if (!nombre.matches("[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ ]+")) {
+                System.out.println("  Error: solo se permiten letras, sin numeros ni simbolos.");
+                continue;
+            }
+            return nombre;
+        }
     }
 
     private static void asignarArmaAleatoria(Personajes personaje) {
