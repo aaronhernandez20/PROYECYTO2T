@@ -11,12 +11,14 @@ public class EstadoPartida {
     public ArrayList<Personajes> equipoMalo;
     public int rondaActual;
     public int idCombate;
+    public int idJugador;
 
     public EstadoPartida(ArrayList<Personajes> equipoBueno, ArrayList<Personajes> equipoMalo,
-                         int rondaActual, int idCombate) {
+                         int rondaActual, int idCombate, int idJugador) {
         this.equipoBueno = equipoBueno;
         this.equipoMalo = equipoMalo;
         this.rondaActual = rondaActual;
         this.idCombate = idCombate;
+        this.idJugador = idJugador;
     }
 }

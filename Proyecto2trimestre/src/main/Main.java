@@ -20,6 +20,7 @@ public class Main {
     public static GestorLogros logros = new GestorLogros();
 
     public static void main(String[] args) {
+        PersistenciaPartida.inicializar();
         Scanner scanner = new Scanner(System.in);
         boolean seguir = true;
 
@@ -58,6 +59,7 @@ public class Main {
             ArrayList<Personajes> equipoMalo;
             int idCombate = 0;
             int rondaInicio = 1;
+            int idJugador = 0;
 
             if (opcion == 2) {
                 List<Object[]> partidas = ConexionBD.consultar(
@@ -65,6 +67,11 @@ public class Main {
 
                 if (partidas.size() == 0) {
                     System.out.println("No hay partidas guardadas. Iniciando nueva partida...");
+                    scanner.nextLine();
+                    System.out.print("¿Como te llamas, Cazador de Brujas? ");
+                    String nombre = scanner.nextLine().trim();
+                    if (nombre.isEmpty()) nombre = "Anonimo";
+                    idJugador = PersistenciaPartida.obtenerOCrearJugador(nombre);
                     equipoBueno = crearEquipoBueno();
                     equipoMalo = crearEquipoMalo();
                 } else {
@@ -75,9 +82,15 @@ public class Main {
 
                     if (estado == null) {
                         System.out.println("Partida no encontrada. Iniciando nueva partida...");
+                        scanner.nextLine();
+                        System.out.print("¿Como te llamas, Cazador de Brujas? ");
+                        String nombre = scanner.nextLine().trim();
+                        if (nombre.isEmpty()) nombre = "Anonimo";
+                        idJugador = PersistenciaPartida.obtenerOCrearJugador(nombre);
                         equipoBueno = crearEquipoBueno();
                         equipoMalo = crearEquipoMalo();
                     } else {
+                        idJugador = estado.idJugador;
                         equipoBueno = estado.equipoBueno;
                         equipoMalo = estado.equipoMalo;
                         idCombate = estado.idCombate;
@@ -85,6 +98,11 @@ public class Main {
                     }
                 }
             } else {
+                scanner.nextLine();
+                System.out.print("¿Como te llamas, Cazador de Brujas? ");
+                String nombre = scanner.nextLine().trim();
+                if (nombre.isEmpty()) nombre = "Anonimo";
+                idJugador = PersistenciaPartida.obtenerOCrearJugador(nombre);
                 equipoBueno = crearEquipoBueno();
                 equipoMalo = crearEquipoMalo();
             }
@@ -98,17 +116,13 @@ public class Main {
 
             Combate combate;
             if (idCombate > 0) {
-                combate = new Combate(equipoBueno, equipoMalo, modoManual, idCombate, rondaInicio);
+                combate = new Combate(equipoBueno, equipoMalo, modoManual, idCombate, rondaInicio, idJugador);
             } else {
-                combate = new Combate(equipoBueno, equipoMalo, modoManual);
+                combate = new Combate(equipoBueno, equipoMalo, modoManual, idJugador);
             }
 
             combate.iniciar();
             logros.mostrarLogros();
-
-            // PRUEBA DE CONEXION - borrar después
-            List<Object[]> test = ConexionBD.consultar("SELECT nombre FROM PERSONAJES");
-            System.out.println("Personajes en BD: " + test.size()); // debe imprimir 6
         }
 
         scanner.close();

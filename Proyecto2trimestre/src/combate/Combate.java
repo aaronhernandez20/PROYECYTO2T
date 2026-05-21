@@ -17,20 +17,22 @@ public class Combate {
 	private boolean modoManual;
 	private int idCombate = 0;
 	private int rondaInicio = 1;
+	private int idJugador = 0;
 	private Scanner scanner = new Scanner(System.in);
     ArrayList<String> opciones = new ArrayList<>();
 
 
-	public Combate(ArrayList<Personajes> equipoBueno, ArrayList<Personajes> equipoMalo, boolean modoManual) {
+	public Combate(ArrayList<Personajes> equipoBueno, ArrayList<Personajes> equipoMalo, boolean modoManual, int idJugador) {
 	    this.equipoBueno = equipoBueno;
 	    this.equipoMalo = equipoMalo;
 	    this.modoManual = modoManual;
+	    this.idJugador = idJugador;
 	}
 
 	// Constructor para continuar una partida cargada desde la BD.
 	public Combate(ArrayList<Personajes> equipoBueno, ArrayList<Personajes> equipoMalo,
-	               boolean modoManual, int idCombate, int rondaInicio) {
-	    this(equipoBueno, equipoMalo, modoManual);
+	               boolean modoManual, int idCombate, int rondaInicio, int idJugador) {
+	    this(equipoBueno, equipoMalo, modoManual, idJugador);
 	    this.idCombate = idCombate;
 	    this.rondaInicio = rondaInicio;
 	}
@@ -309,7 +311,7 @@ public class Combate {
 
 		// Si es partida nueva la registramos en la BD
 		if (idCombate == 0) {
-		    idCombate = PersistenciaPartida.nuevaPartida();
+		    idCombate = PersistenciaPartida.nuevaPartida(idJugador);
 		}
 
 		GestorHistorial.registrar(idCombate, 0, "Combate iniciado. Equipo Geralt vs La Caceria Salvaje.");
@@ -415,6 +417,9 @@ public class Combate {
 		boolean ganado = hayVivos(equipoBueno);
 		Personajes[] aliados = equipoBueno.toArray(new Personajes[0]);
 		main.Main.logros.comprobarFinCombate(ganado, aliados);
+
+		// Actualizar victorias/derrotas del jugador en la BD
+		PersistenciaPartida.actualizarEstadisticasJugador(idJugador, ganado);
 
 		// Registrar muerte de enemigos importantes
 		for (Personajes enemigo : equipoMalo) {

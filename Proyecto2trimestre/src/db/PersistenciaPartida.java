@@ -14,11 +14,62 @@ import personajes.Personajes;
 
 public class PersistenciaPartida {
 
+    // Crea la tabla jugadores si no existe y añade la columna ID_jugador a combate si falta.
+    public static void inicializar() {
+        ConexionBD.ejecutar(
+            "CREATE TABLE IF NOT EXISTS jugadores (" +
+            "ID_jugador INT AUTO_INCREMENT PRIMARY KEY, " +
+            "nombre VARCHAR(100) NOT NULL, " +
+            "victorias INT DEFAULT 0, " +
+            "derrotas INT DEFAULT 0" +
+            ")", new ArrayList<>());
+
+        ConexionBD.ejecutar(
+            "ALTER TABLE combate ADD COLUMN IF NOT EXISTS ID_jugador INT DEFAULT NULL",
+            new ArrayList<>());
+    }
+
+    // Busca el jugador por nombre. Si no existe lo crea. Devuelve su ID.
+    public static int obtenerOCrearJugador(String nombre) {
+        List<Object[]> filas = ConexionBD.consultar(
+            "SELECT ID_jugador FROM jugadores WHERE nombre = ?", params(nombre));
+        if (!filas.isEmpty()) {
+            int id = ((Number) filas.get(0)[0]).intValue();
+            System.out.println("[BD] Bienvenido de nuevo, " + nombre + " (ID: " + id + ")");
+            return id;
+        }
+        int id = ConexionBD.ejecutarYObtenerId(
+            "INSERT INTO jugadores (nombre) VALUES (?)", params(nombre));
+        System.out.println("[BD] Nuevo jugador registrado: " + nombre + " (ID: " + id + ")");
+        return id;
+    }
+
+    // Actualiza victorias o derrotas del jugador al terminar un combate.
+    public static void actualizarEstadisticasJugador(int idJugador, boolean victoria) {
+        if (idJugador <= 0) return;
+        if (victoria) {
+            ConexionBD.ejecutar(
+                "UPDATE jugadores SET victorias = victorias + 1 WHERE ID_jugador = ?",
+                params(idJugador));
+        } else {
+            ConexionBD.ejecutar(
+                "UPDATE jugadores SET derrotas = derrotas + 1 WHERE ID_jugador = ?",
+                params(idJugador));
+        }
+    }
+
     // Crea un nuevo combate en la BD y registra los 6 personajes.
     // Devuelve el ID del combate generado.
-    public static int nuevaPartida() {
-        int idCombate = ConexionBD.ejecutarYObtenerId(
-            "INSERT INTO COMBATE (turno, nRondas) VALUES (1, 0)", new ArrayList<>());
+    public static int nuevaPartida(int idJugador) {
+        int idCombate;
+        if (idJugador > 0) {
+            idCombate = ConexionBD.ejecutarYObtenerId(
+                "INSERT INTO COMBATE (turno, nRondas, ID_jugador) VALUES (1, 0, ?)",
+                params(idJugador));
+        } else {
+            idCombate = ConexionBD.ejecutarYObtenerId(
+                "INSERT INTO COMBATE (turno, nRondas) VALUES (1, 0)", new ArrayList<>());
+        }
 
         for (int idPersonaje = 1; idPersonaje <= 6; idPersonaje++) {
             ConexionBD.ejecutar(
@@ -117,7 +168,7 @@ public class PersistenciaPartida {
     // Devuelve null si no existe ese combate.
     public static EstadoPartida cargarEstado(int idCombate) {
         List<Object[]> filas = ConexionBD.consultar(
-            "SELECT nRondas FROM COMBATE WHERE ID_COMBATE=?", params(idCombate));
+            "SELECT nRondas, ID_jugador FROM COMBATE WHERE ID_COMBATE=?", params(idCombate));
 
         if (filas.isEmpty()) {
             System.out.println("[BD] No existe el combate con ID: " + idCombate);
@@ -125,6 +176,7 @@ public class PersistenciaPartida {
         }
 
         int ronda = ((Number) filas.get(0)[0]).intValue();
+        int idJugador = filas.get(0)[1] != null ? ((Number) filas.get(0)[1]).intValue() : 0;
 
         // Crear los personajes desde el catalogo (ya llevan armas y hechizos)
         ArrayList<Personajes> equipoBueno = new ArrayList<>();
@@ -156,7 +208,7 @@ public class PersistenciaPartida {
         }
 
         System.out.println("[BD] Partida cargada. ID: " + idCombate + ", Ronda: " + ronda);
-        return new EstadoPartida(equipoBueno, equipoMalo, ronda, idCombate);
+        return new EstadoPartida(equipoBueno, equipoMalo, ronda, idCombate, idJugador);
     }
 
     // Equipa el arma que estaba guardada como equipada en PERSONAJE_ARMA.
