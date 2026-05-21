@@ -1,8 +1,7 @@
-package historial;
+package db;
 
 import java.util.ArrayList;
 import java.util.List;
-import db.ConexionBD;
 
 // Registra en la BD las acciones importantes que ocurren durante un combate.
 // Permite consultar despues como fue evolucionando la partida.

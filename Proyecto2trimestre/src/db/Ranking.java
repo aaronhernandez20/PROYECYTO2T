@@ -1,7 +1,6 @@
-package ranking;
+package db;
 
 import java.util.List;
-import db.ConexionBD;
 
 public class Ranking {
 

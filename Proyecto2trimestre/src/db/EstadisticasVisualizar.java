@@ -1,4 +1,4 @@
-package visualizacion;
+package db;
 
 import java.util.ArrayList;
 

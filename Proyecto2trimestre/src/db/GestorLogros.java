@@ -1,8 +1,7 @@
-package logros;
+package db;
 
 import java.util.ArrayList;
 import java.util.List;
-import db.ConexionBD;
 import personajes.Personajes;
 
 public class GestorLogros {

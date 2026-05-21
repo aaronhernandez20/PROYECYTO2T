@@ -9,11 +9,11 @@ import combate.Combate;
 import db.ConexionBD;
 import db.EstadoPartida;
 import db.PersistenciaPartida;
-import logros.GestorLogros;
+import db.EstadisticasVisualizar;
+import db.GestorHistorial;
+import db.GestorLogros;
+import db.Ranking;
 import personajes.Personajes;
-import historial.GestorHistorial;
-import ranking.Ranking;
-import visualizacion.EstadisticasVisualizar;
 
 public class Main {
 
