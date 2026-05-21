@@ -1,33 +1,26 @@
 package logros;
 
+import java.util.ArrayList;
+import java.util.List;
+import db.ConexionBD;
 import personajes.Personajes;
 
-/**
- * Gestor del sistema de logros.
- * 
- * Cada logro es un boolean: false = bloqueado, true = desbloqueado.
- * Ademas hay contadores enteros para llevar el progreso.
- * 
- * Como usarlo:
- *   1. Crear una instancia en Main:  GestorLogros logros = new GestorLogros();
- *   2. Llamar a los metodos registrar...() desde el combate cuando ocurran cosas.
- *   3. Llamar a comprobarFinCombate() al terminar un combate.
- *   4. Llamar a mostrarLogros() para ver el estado.
- */
 public class GestorLogros {
 
-    // CONTADORES (cuantas veces ha pasado cada cosa)
+    private int idJugador = 0;
+
+    // Contadores acumulativos (se guardan en BD por jugador)
     private int combatesGanados = 0;
     private int hechizosTotal = 0;
     private int curacionTotal = 0;
     private int quemadurasAplicadas = 0;
     private int renovaresPorSacerdote = 0;
 
-    // Estos se resetean al final de cada combate
+    // Contadores que se resetean al final de cada combate
     private int hechizosEsteCombate = 0;
     private boolean geraltSinDano = true;
 
-    // LOGROS (true = desbloqueado, false = bloqueado)
+    // Logros desbloqueados
     private boolean primeraSangre = false;
     private boolean veterano = false;
     private boolean imbatible = false;
@@ -42,9 +35,34 @@ public class GestorLogros {
     private boolean geraltImparable = false;
     private boolean vencerAlRey = false;
 
+    // Carga el estado del jugador desde la BD al inicio de cada partida.
+    public void setJugador(int id) {
+        this.idJugador = id;
+        resetearEstadoCombate();
+        if (id <= 0) return;
+
+        // Cargar logros ya desbloqueados
+        List<Object[]> filas = ConexionBD.consultar(
+            "SELECT nombre FROM logros WHERE ID_jugador = ?", params(id));
+        for (Object[] fila : filas) {
+            activarLogro((String) fila[0]);
+        }
+
+        // Cargar contadores acumulados
+        List<Object[]> stats = ConexionBD.consultar(
+            "SELECT victorias, hechizosTotal, curacionTotal, quemadurasAplicadas, renovaresPorSacerdote " +
+            "FROM jugadores WHERE ID_jugador = ?", params(id));
+        if (!stats.isEmpty()) {
+            combatesGanados        = ((Number) stats.get(0)[0]).intValue();
+            hechizosTotal          = ((Number) stats.get(0)[1]).intValue();
+            curacionTotal          = ((Number) stats.get(0)[2]).intValue();
+            quemadurasAplicadas    = ((Number) stats.get(0)[3]).intValue();
+            renovaresPorSacerdote  = ((Number) stats.get(0)[4]).intValue();
+        }
+    }
+
     // METODOS PARA REGISTRAR EVENTOS DEL JUEGO
 
-    /** Llamar cuando un arma haga un critico. */
     public void registrarCritico() {
         if (!golpeCritico) {
             golpeCritico = true;
@@ -52,7 +70,6 @@ public class GestorLogros {
         }
     }
 
-    /** Llamar despues de calcular el dano de un ataque. */
     public void registrarDanoInfligido(int dano) {
         if (dano >= 500 && !carnicero) {
             carnicero = true;
@@ -60,7 +77,6 @@ public class GestorLogros {
         }
     }
 
-    /** Llamar cada vez que se lanza un hechizo. */
     public void registrarHechizoLanzado() {
         hechizosTotal++;
         hechizosEsteCombate++;
@@ -70,7 +86,6 @@ public class GestorLogros {
         }
     }
 
-    /** Llamar cuando alguien cure (CuracionDirecta o Sacerdote.curar). */
     public void registrarCuracion(int cantidad) {
         curacionTotal += cantidad;
         if (curacionTotal >= 1000 && !sanador) {
@@ -79,7 +94,6 @@ public class GestorLogros {
         }
     }
 
-    /** Llamar cuando se aplique Quemadura a un enemigo. */
     public void registrarQuemaduraAplicada() {
         quemadurasAplicadas++;
         if (quemadurasAplicadas >= 20 && !piromano) {
@@ -88,7 +102,6 @@ public class GestorLogros {
         }
     }
 
-    /** Llamar cuando un Sacerdote aplique Renovar. */
     public void registrarRenovarPorSacerdote() {
         renovaresPorSacerdote++;
         if (renovaresPorSacerdote >= 10 && !renovador) {
@@ -97,12 +110,10 @@ public class GestorLogros {
         }
     }
 
-    /** Llamar cuando Geralt reciba dano. */
     public void registrarDanoAGeralt() {
         geraltSinDano = false;
     }
 
-    /** Llamar cuando muera un enemigo. Solo desbloquea logro si es Eredin. */
     public void registrarMuerteEnemigo(Personajes enemigo) {
         if (enemigo.getNombre().equalsIgnoreCase("Eredin") && !vencerAlRey) {
             vencerAlRey = true;
@@ -110,46 +121,30 @@ public class GestorLogros {
         }
     }
 
-    /**
-     * Llamar al final de cada combate.
-     * 
-     * Javadoc
-     * @param ganado          true si el equipo del jugador gano
-     * @param equipoJugador   array con los 3 aliados (vivos o muertos)
-     */
     public void comprobarFinCombate(boolean ganado, Personajes[] equipoJugador) {
         if (!ganado) {
-            // Si pierde, solo resetea los contadores del combate
-            hechizosEsteCombate = 0;
-            geraltSinDano = true;
+            resetearEstadoCombate();
+            guardarContadores();
             return;
         }
 
         combatesGanados++;
 
-        // PRIMERA SANGRE: primer combate ganado
         if (combatesGanados == 1 && !primeraSangre) {
             primeraSangre = true;
             mostrarMensaje("PRIMERA SANGRE", "Has ganado tu primer combate.");
         }
 
-        // VETERANO: 10 combates ganados
         if (combatesGanados >= 10 && !veterano) {
             veterano = true;
             mostrarMensaje("VETERANO", "Has ganado 10 combates.");
         }
 
-        // Recorremos los aliados para comprobar IMBATIBLE y POR LOS PELOS
         boolean todosVivos = true;
         boolean alguienBajo = false;
-        for (int i = 0; i < equipoJugador.length; i++) {
-            Personajes p = equipoJugador[i];
-            if (!p.estaVivo()) {
-                todosVivos = false;
-            }
-            if (p.estaVivo() && p.getVidaActual() < p.getVidaMax() * 0.1) {
-                alguienBajo = true;
-            }
+        for (Personajes p : equipoJugador) {
+            if (!p.estaVivo()) todosVivos = false;
+            if (p.estaVivo() && p.getVidaActual() < p.getVidaMax() * 0.1) alguienBajo = true;
         }
 
         if (todosVivos && !imbatible) {
@@ -160,25 +155,112 @@ public class GestorLogros {
             porLosPelos = true;
             mostrarMensaje("POR LOS PELOS", "Has ganado con un aliado por debajo del 10% de vida.");
         }
-
-        // SOLO CUERPO A CUERPO: no se lanzaron hechizos
         if (hechizosEsteCombate == 0 && !soloCuerpoACuerpo) {
             soloCuerpoACuerpo = true;
             mostrarMensaje("SOLO CUERPO A CUERPO", "Has ganado un combate sin lanzar hechizos.");
         }
-
-        // GERALT IMPARABLE: Geralt no recibio dano
         if (geraltSinDano && !geraltImparable) {
             geraltImparable = true;
             mostrarMensaje("GERALT IMPARABLE", "Has ganado un combate sin que Geralt reciba dano.");
         }
 
-        // Reset de los contadores del combate
+        resetearEstadoCombate();
+        guardarContadores();
+    }
+
+    // Muestra el estado de los logros del jugador actual.
+    public void mostrarLogros() {
+        System.out.println("\n--- LOGROS ---");
+        mostrarLinea("PRIMERA SANGRE",     primeraSangre);
+        mostrarLinea("VETERANO",           veterano);
+        mostrarLinea("IMBATIBLE",          imbatible);
+        mostrarLinea("POR LOS PELOS",      porLosPelos);
+        mostrarLinea("GOLPE CRITICO",      golpeCritico);
+        mostrarLinea("CARNICERO",          carnicero);
+        mostrarLinea("SOLO CUERPO A CUERPO", soloCuerpoACuerpo);
+        mostrarLinea("MAGO EXPERIMENTADO", magoExperimentado);
+        mostrarLinea("SANADOR",            sanador);
+        mostrarLinea("PIROMANO",           piromano);
+        mostrarLinea("RENOVADOR",          renovador);
+        mostrarLinea("GERALT IMPARABLE",   geraltImparable);
+        mostrarLinea("VENCER AL REY",      vencerAlRey);
+        System.out.println();
+    }
+
+    // Muestra los logros de todos los jugadores registrados en BD.
+    public static void mostrarLogrosGlobal() {
+        System.out.println("\n╔══════════════════════════════════════════════════════╗");
+        System.out.println("║                    LOGROS                           ║");
+        System.out.println("╚══════════════════════════════════════════════════════╝");
+
+        List<Object[]> jugadores = ConexionBD.consultar(
+            "SELECT ID_jugador, nombre FROM jugadores ORDER BY nombre");
+
+        if (jugadores.isEmpty()) {
+            System.out.println("  No hay jugadores registrados todavia.");
+            return;
+        }
+
+        for (Object[] fila : jugadores) {
+            int id     = ((Number) fila[0]).intValue();
+            String nom = (String) fila[1];
+
+            List<Object[]> logros = ConexionBD.consultar(
+                "SELECT nombre FROM logros WHERE ID_jugador = ? ORDER BY nombre",
+                params(id));
+
+            System.out.println("\n  [" + nom + "]  " + logros.size() + "/13 logros");
+            System.out.println("  " + "-".repeat(40));
+            if (logros.isEmpty()) {
+                System.out.println("  Aun no ha desbloqueado ningun logro.");
+            } else {
+                for (Object[] l : logros) {
+                    System.out.println("  [X] " + l[0]);
+                }
+            }
+        }
+        System.out.println();
+    }
+
+    // PRIVADOS
+
+    private void activarLogro(String nombre) {
+        switch (nombre) {
+            case "PRIMERA SANGRE":      primeraSangre    = true; break;
+            case "VETERANO":            veterano         = true; break;
+            case "IMBATIBLE":           imbatible        = true; break;
+            case "POR LOS PELOS":       porLosPelos      = true; break;
+            case "GOLPE CRITICO":       golpeCritico     = true; break;
+            case "CARNICERO":           carnicero        = true; break;
+            case "SOLO CUERPO A CUERPO": soloCuerpoACuerpo = true; break;
+            case "MAGO EXPERIMENTADO":  magoExperimentado = true; break;
+            case "SANADOR":             sanador          = true; break;
+            case "PIROMANO":            piromano         = true; break;
+            case "RENOVADOR":           renovador        = true; break;
+            case "GERALT IMPARABLE":    geraltImparable  = true; break;
+            case "VENCER AL REY":       vencerAlRey      = true; break;
+        }
+    }
+
+    private void guardarLogro(String nombre) {
+        if (idJugador <= 0) return;
+        ConexionBD.ejecutar(
+            "INSERT IGNORE INTO logros (ID_jugador, nombre) VALUES (?, ?)",
+            params(idJugador, nombre));
+    }
+
+    private void guardarContadores() {
+        if (idJugador <= 0) return;
+        ConexionBD.ejecutar(
+            "UPDATE jugadores SET hechizosTotal=?, curacionTotal=?, quemadurasAplicadas=?, renovaresPorSacerdote=? " +
+            "WHERE ID_jugador=?",
+            params(hechizosTotal, curacionTotal, quemadurasAplicadas, renovaresPorSacerdote, idJugador));
+    }
+
+    private void resetearEstadoCombate() {
         hechizosEsteCombate = 0;
         geraltSinDano = true;
     }
-
-    // MOSTRAR MENSAJES Y ESTADO
 
     private void mostrarMensaje(String nombre, String descripcion) {
         System.out.println();
@@ -187,37 +269,16 @@ public class GestorLogros {
         System.out.println("    " + descripcion);
         System.out.println("================================================");
         System.out.println();
-    }
-
-    /** Muestra el estado de todos los logros (para un menu de visualizacion). */
-    public void mostrarLogros() {
-        System.out.println();
-        System.out.println("--- LOGROS ---");
-        mostrarLinea("PRIMERA SANGRE",primeraSangre);
-        mostrarLinea("VETERANO",veterano);
-        mostrarLinea("IMBATIBLE",imbatible);
-        mostrarLinea("POR LOS PELOS",porLosPelos);
-        mostrarLinea("GOLPE CRITICO",golpeCritico);
-        mostrarLinea("CARNICERO",carnicero);
-        mostrarLinea("SOLO CUERPO A CUERPO",soloCuerpoACuerpo);
-        mostrarLinea("MAGO EXPERIMENTADO", magoExperimentado);
-        mostrarLinea("SANADOR",sanador);
-        mostrarLinea("PIROMANO",piromano);
-        mostrarLinea("RENOVADOR", renovador);
-        mostrarLinea("GERALT IMPARABLE",geraltImparable);
-        mostrarLinea("VENCER AL REY",vencerAlRey);
-        System.out.println();
+        guardarLogro(nombre);
     }
 
     private void mostrarLinea(String nombre, boolean desbloqueado) {
-        String marca;
-        if (desbloqueado) {
-            marca = "[X]";
-        } else {
-            marca = "[ ]";
-        }
-        System.out.println(marca + " " + nombre);
+        System.out.println((desbloqueado ? "[X]" : "[ ]") + " " + nombre);
     }
 
-   
+    private static List<Object> params(Object... valores) {
+        List<Object> lista = new ArrayList<>();
+        for (Object v : valores) lista.add(v);
+        return lista;
+    }
 }

@@ -31,13 +31,19 @@ public class Main {
             System.out.println("3. Ver ranking");
             System.out.println("4. Ver historial de partidas");
             System.out.println("5. Ver estadisticas");
-            System.out.println("6. Salir");
+            System.out.println("6. Ver logros");
+            System.out.println("7. Salir");
             System.out.print("Elige una opcion: ");
             int opcion = scanner.nextInt();
 
-            if (opcion == 6) {
+            if (opcion == 7) {
                 seguir = false;
                 break;
+            }
+
+            if (opcion == 6) {
+                GestorLogros.mostrarLogrosGlobal();
+                continue;
             }
 
             if (opcion == 3) {
@@ -69,6 +75,7 @@ public class Main {
                     System.out.println("No hay partidas guardadas. Iniciando nueva partida...");
                     scanner.nextLine();
                     idJugador = PersistenciaPartida.obtenerOCrearJugador(pedirNombre(scanner));
+                    logros.setJugador(idJugador);
                     equipoBueno = crearEquipoBueno();
                     equipoMalo = crearEquipoMalo();
                 } else {
@@ -81,10 +88,12 @@ public class Main {
                         System.out.println("Partida no encontrada. Iniciando nueva partida...");
                         scanner.nextLine();
                         idJugador = PersistenciaPartida.obtenerOCrearJugador(pedirNombre(scanner));
+                        logros.setJugador(idJugador);
                         equipoBueno = crearEquipoBueno();
                         equipoMalo = crearEquipoMalo();
                     } else {
                         idJugador = estado.idJugador;
+                        logros.setJugador(idJugador);
                         equipoBueno = estado.equipoBueno;
                         equipoMalo = estado.equipoMalo;
                         idCombate = estado.idCombate;
@@ -94,6 +103,7 @@ public class Main {
             } else {
                 scanner.nextLine();
                 idJugador = PersistenciaPartida.obtenerOCrearJugador(pedirNombre(scanner));
+                logros.setJugador(idJugador);
                 equipoBueno = crearEquipoBueno();
                 equipoMalo = crearEquipoMalo();
             }

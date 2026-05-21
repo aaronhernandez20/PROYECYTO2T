@@ -14,7 +14,7 @@ import personajes.Personajes;
 
 public class PersistenciaPartida {
 
-    // Crea la tabla jugadores si no existe y añade la columna ID_jugador a combate si falta.
+    // Crea tablas y columnas necesarias si no existen (migracion segura).
     public static void inicializar() {
         ConexionBD.ejecutar(
             "CREATE TABLE IF NOT EXISTS jugadores (" +
@@ -23,6 +23,26 @@ public class PersistenciaPartida {
             "victorias INT DEFAULT 0, " +
             "derrotas INT DEFAULT 0" +
             ")", new ArrayList<>());
+
+        ConexionBD.ejecutar(
+            "CREATE TABLE IF NOT EXISTS logros (" +
+            "ID_jugador INT NOT NULL, " +
+            "nombre VARCHAR(60) NOT NULL, " +
+            "PRIMARY KEY (ID_jugador, nombre)" +
+            ")", new ArrayList<>());
+
+        ConexionBD.ejecutar(
+            "ALTER TABLE jugadores ADD COLUMN IF NOT EXISTS hechizosTotal INT DEFAULT 0",
+            new ArrayList<>());
+        ConexionBD.ejecutar(
+            "ALTER TABLE jugadores ADD COLUMN IF NOT EXISTS curacionTotal INT DEFAULT 0",
+            new ArrayList<>());
+        ConexionBD.ejecutar(
+            "ALTER TABLE jugadores ADD COLUMN IF NOT EXISTS quemadurasAplicadas INT DEFAULT 0",
+            new ArrayList<>());
+        ConexionBD.ejecutar(
+            "ALTER TABLE jugadores ADD COLUMN IF NOT EXISTS renovaresPorSacerdote INT DEFAULT 0",
+            new ArrayList<>());
 
         ConexionBD.ejecutar(
             "ALTER TABLE combate ADD COLUMN IF NOT EXISTS ID_jugador INT DEFAULT NULL",
