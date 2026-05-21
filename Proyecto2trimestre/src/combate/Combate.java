@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 import db.PersistenciaPartida;
 import hechizos.Hechizos;
-import db.GestorHistorial;
+import db.historial.GestorHistorial;
 import personajes.Personajes;
 
 

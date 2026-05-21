@@ -1,7 +1,8 @@
-package db;
+package db.historial;
 
 import java.util.ArrayList;
 import java.util.List;
+import db.ConexionBD;
 
 // Registra en la BD las acciones importantes que ocurren durante un combate.
 // Permite consultar despues como fue evolucionando la partida.
@@ -14,7 +15,7 @@ public class GestorHistorial {
         params.add(ronda);
         params.add(accion);
         ConexionBD.ejecutar(
-            "INSERT INTO HISTORIAL (ID_COMBATE, ronda, accion) VALUES (?, ?, ?)", params);
+                "INSERT INTO HISTORIAL (ID_COMBATE, ronda, accion) VALUES (?, ?, ?)", params);
     }
 
     // Muestra el historial completo de un combate concreto
@@ -22,8 +23,8 @@ public class GestorHistorial {
         List<Object> params = new ArrayList<>();
         params.add(idCombate);
         List<Object[]> filas = ConexionBD.consultar(
-            "SELECT ronda, accion, fecha FROM HISTORIAL WHERE ID_COMBATE = ? ORDER BY ID_HISTORIAL ASC",
-            params);
+                "SELECT ronda, accion, fecha FROM HISTORIAL WHERE ID_COMBATE = ? ORDER BY ID_HISTORIAL ASC",
+                params);
 
         System.out.println("\n=== HISTORIAL DEL COMBATE " + idCombate + " ===");
 
@@ -43,7 +44,7 @@ public class GestorHistorial {
     // Muestra todos los combates con sus acciones registradas
     public static void mostrarTodo() {
         List<Object[]> combates = ConexionBD.consultar(
-            "SELECT DISTINCT ID_COMBATE FROM HISTORIAL ORDER BY ID_COMBATE DESC");
+                "SELECT DISTINCT ID_COMBATE FROM HISTORIAL ORDER BY ID_COMBATE DESC");
 
         System.out.println("\n=== HISTORIAL DE PARTIDAS ===");
 

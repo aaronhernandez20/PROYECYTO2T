@@ -1,4 +1,4 @@
-package db;
+package db.visualizacion;
 
 import java.util.ArrayList;
 
@@ -17,26 +17,26 @@ import personajes.Personajes;
  * del juego, separados en dos series: equipo bueno y equipo malo.
  * 
  * Para usarlo desde Main:
- *     EstadisticasVisualizer.mostrarVidaInicial();
+ * EstadisticasVisualizer.mostrarVidaInicial();
  * 
  * Requiere la dependencia XChart en pom.xml:
- *     <dependency>
- *         <groupId>org.knowm.xchart</groupId>
- *         <artifactId>xchart</artifactId>
- *         <version>3.8.7</version>
- *     </dependency>
+ * <dependency>
+ * <groupId>org.knowm.xchart</groupId>
+ * <artifactId>xchart</artifactId>
+ * <version>3.8.7</version>
+ * </dependency>
  */
 public class EstadisticasVisualizar {
 
     public static void mostrarVidaInicial() {
 
         // 1. Crear los 6 personajes desde el catalogo
-        Personajes geralt    = CatalogoPersonajes.crearGeralt();
-        Personajes yennefer  = CatalogoPersonajes.crearYennefer();
-        Personajes ciri      = CatalogoPersonajes.crearCiri();
-        Personajes imlerith  = CatalogoPersonajes.crearImlerith();
+        Personajes geralt = CatalogoPersonajes.crearGeralt();
+        Personajes yennefer = CatalogoPersonajes.crearYennefer();
+        Personajes ciri = CatalogoPersonajes.crearCiri();
+        Personajes imlerith = CatalogoPersonajes.crearImlerith();
         Personajes caranthir = CatalogoPersonajes.crearCaranthir();
-        Personajes eredin    = CatalogoPersonajes.crearEredin();
+        Personajes eredin = CatalogoPersonajes.crearEredin();
 
         // 2. Preparar los datos
         // Los 6 personajes van en el eje X.
@@ -84,7 +84,7 @@ public class EstadisticasVisualizar {
 
         // 4. Añadir las dos series
         grafico.addSeries("Equipo bueno", nombres, vidaBuenos);
-        grafico.addSeries("Equipo malo",  nombres, vidaMalos);
+        grafico.addSeries("Equipo malo", nombres, vidaMalos);
 
         // 5. Mostrar el grafico en una ventana
         new SwingWrapper<>(grafico).displayChart();

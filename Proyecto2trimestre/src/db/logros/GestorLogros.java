@@ -1,7 +1,8 @@
-package db;
+package db.logros;
 
 import java.util.ArrayList;
 import java.util.List;
+import db.ConexionBD;
 import personajes.Personajes;
 
 public class GestorLogros {
@@ -38,25 +39,27 @@ public class GestorLogros {
     public void setJugador(int id) {
         this.idJugador = id;
         resetearEstadoCombate();
-        if (id <= 0) return;
+        if (id <= 0)
+            return;
 
         // Cargar logros ya desbloqueados
         List<Object[]> filas = ConexionBD.consultar(
-            "SELECT nombre FROM logros WHERE ID_jugador = ?", params(id));
+                "SELECT nombre FROM logros WHERE ID_jugador = ?", params(id));
         for (Object[] fila : filas) {
             activarLogro((String) fila[0]);
         }
 
         // Cargar contadores acumulados
         List<Object[]> stats = ConexionBD.consultar(
-            "SELECT victorias, hechizosTotal, curacionTotal, quemadurasAplicadas, renovaresPorSacerdote " +
-            "FROM jugadores WHERE ID_jugador = ?", params(id));
+                "SELECT victorias, hechizosTotal, curacionTotal, quemadurasAplicadas, renovaresPorSacerdote " +
+                        "FROM jugadores WHERE ID_jugador = ?",
+                params(id));
         if (!stats.isEmpty()) {
-            combatesGanados        = ((Number) stats.get(0)[0]).intValue();
-            hechizosTotal          = ((Number) stats.get(0)[1]).intValue();
-            curacionTotal          = ((Number) stats.get(0)[2]).intValue();
-            quemadurasAplicadas    = ((Number) stats.get(0)[3]).intValue();
-            renovaresPorSacerdote  = ((Number) stats.get(0)[4]).intValue();
+            combatesGanados = ((Number) stats.get(0)[0]).intValue();
+            hechizosTotal = ((Number) stats.get(0)[1]).intValue();
+            curacionTotal = ((Number) stats.get(0)[2]).intValue();
+            quemadurasAplicadas = ((Number) stats.get(0)[3]).intValue();
+            renovaresPorSacerdote = ((Number) stats.get(0)[4]).intValue();
         }
     }
 
@@ -142,8 +145,10 @@ public class GestorLogros {
         boolean todosVivos = true;
         boolean alguienBajo = false;
         for (Personajes p : equipoJugador) {
-            if (!p.estaVivo()) todosVivos = false;
-            if (p.estaVivo() && p.getVidaActual() < p.getVidaMax() * 0.1) alguienBajo = true;
+            if (!p.estaVivo())
+                todosVivos = false;
+            if (p.estaVivo() && p.getVidaActual() < p.getVidaMax() * 0.1)
+                alguienBajo = true;
         }
 
         if (todosVivos && !imbatible) {
@@ -170,19 +175,19 @@ public class GestorLogros {
     // Muestra el estado de los logros del jugador actual.
     public void mostrarLogros() {
         System.out.println("\n--- LOGROS ---");
-        mostrarLinea("PRIMERA SANGRE",     primeraSangre);
-        mostrarLinea("VETERANO",           veterano);
-        mostrarLinea("IMBATIBLE",          imbatible);
-        mostrarLinea("POR LOS PELOS",      porLosPelos);
-        mostrarLinea("GOLPE CRITICO",      golpeCritico);
-        mostrarLinea("CARNICERO",          carnicero);
+        mostrarLinea("PRIMERA SANGRE", primeraSangre);
+        mostrarLinea("VETERANO", veterano);
+        mostrarLinea("IMBATIBLE", imbatible);
+        mostrarLinea("POR LOS PELOS", porLosPelos);
+        mostrarLinea("GOLPE CRITICO", golpeCritico);
+        mostrarLinea("CARNICERO", carnicero);
         mostrarLinea("SOLO CUERPO A CUERPO", soloCuerpoACuerpo);
         mostrarLinea("MAGO EXPERIMENTADO", magoExperimentado);
-        mostrarLinea("SANADOR",            sanador);
-        mostrarLinea("PIROMANO",           piromano);
-        mostrarLinea("RENOVADOR",          renovador);
-        mostrarLinea("GERALT IMPARABLE",   geraltImparable);
-        mostrarLinea("VENCER AL REY",      vencerAlRey);
+        mostrarLinea("SANADOR", sanador);
+        mostrarLinea("PIROMANO", piromano);
+        mostrarLinea("RENOVADOR", renovador);
+        mostrarLinea("GERALT IMPARABLE", geraltImparable);
+        mostrarLinea("VENCER AL REY", vencerAlRey);
         System.out.println();
     }
 
@@ -193,7 +198,7 @@ public class GestorLogros {
         System.out.println("╚══════════════════════════════════════════════════════╝");
 
         List<Object[]> jugadores = ConexionBD.consultar(
-            "SELECT ID_jugador, nombre FROM jugadores ORDER BY nombre");
+                "SELECT ID_jugador, nombre FROM jugadores ORDER BY nombre");
 
         if (jugadores.isEmpty()) {
             System.out.println("  No hay jugadores registrados todavia.");
@@ -201,12 +206,12 @@ public class GestorLogros {
         }
 
         for (Object[] fila : jugadores) {
-            int id     = ((Number) fila[0]).intValue();
+            int id = ((Number) fila[0]).intValue();
             String nom = (String) fila[1];
 
             List<Object[]> logros = ConexionBD.consultar(
-                "SELECT nombre FROM logros WHERE ID_jugador = ? ORDER BY nombre",
-                params(id));
+                    "SELECT nombre FROM logros WHERE ID_jugador = ? ORDER BY nombre",
+                    params(id));
 
             System.out.println("\n  [" + nom + "]  " + logros.size() + "/13 logros");
             System.out.println("  " + "-".repeat(40));
@@ -225,35 +230,64 @@ public class GestorLogros {
 
     private void activarLogro(String nombre) {
         switch (nombre) {
-            case "PRIMERA SANGRE":      primeraSangre    = true; break;
-            case "VETERANO":            veterano         = true; break;
-            case "IMBATIBLE":           imbatible        = true; break;
-            case "POR LOS PELOS":       porLosPelos      = true; break;
-            case "GOLPE CRITICO":       golpeCritico     = true; break;
-            case "CARNICERO":           carnicero        = true; break;
-            case "SOLO CUERPO A CUERPO": soloCuerpoACuerpo = true; break;
-            case "MAGO EXPERIMENTADO":  magoExperimentado = true; break;
-            case "SANADOR":             sanador          = true; break;
-            case "PIROMANO":            piromano         = true; break;
-            case "RENOVADOR":           renovador        = true; break;
-            case "GERALT IMPARABLE":    geraltImparable  = true; break;
-            case "VENCER AL REY":       vencerAlRey      = true; break;
+            case "PRIMERA SANGRE":
+                primeraSangre = true;
+                break;
+            case "VETERANO":
+                veterano = true;
+                break;
+            case "IMBATIBLE":
+                imbatible = true;
+                break;
+            case "POR LOS PELOS":
+                porLosPelos = true;
+                break;
+            case "GOLPE CRITICO":
+                golpeCritico = true;
+                break;
+            case "CARNICERO":
+                carnicero = true;
+                break;
+            case "SOLO CUERPO A CUERPO":
+                soloCuerpoACuerpo = true;
+                break;
+            case "MAGO EXPERIMENTADO":
+                magoExperimentado = true;
+                break;
+            case "SANADOR":
+                sanador = true;
+                break;
+            case "PIROMANO":
+                piromano = true;
+                break;
+            case "RENOVADOR":
+                renovador = true;
+                break;
+            case "GERALT IMPARABLE":
+                geraltImparable = true;
+                break;
+            case "VENCER AL REY":
+                vencerAlRey = true;
+                break;
         }
     }
 
     private void guardarLogro(String nombre) {
-        if (idJugador <= 0) return;
+        if (idJugador <= 0)
+            return;
         ConexionBD.ejecutar(
-            "INSERT IGNORE INTO logros (ID_jugador, nombre) VALUES (?, ?)",
-            params(idJugador, nombre));
+                "INSERT IGNORE INTO logros (ID_jugador, nombre) VALUES (?, ?)",
+                params(idJugador, nombre));
     }
 
     private void guardarContadores() {
-        if (idJugador <= 0) return;
+        if (idJugador <= 0)
+            return;
         ConexionBD.ejecutar(
-            "UPDATE jugadores SET hechizosTotal=?, curacionTotal=?, quemadurasAplicadas=?, renovaresPorSacerdote=? " +
-            "WHERE ID_jugador=?",
-            params(hechizosTotal, curacionTotal, quemadurasAplicadas, renovaresPorSacerdote, idJugador));
+                "UPDATE jugadores SET hechizosTotal=?, curacionTotal=?, quemadurasAplicadas=?, renovaresPorSacerdote=? "
+                        +
+                        "WHERE ID_jugador=?",
+                params(hechizosTotal, curacionTotal, quemadurasAplicadas, renovaresPorSacerdote, idJugador));
     }
 
     private void resetearEstadoCombate() {
@@ -277,7 +311,8 @@ public class GestorLogros {
 
     private static List<Object> params(Object... valores) {
         List<Object> lista = new ArrayList<>();
-        for (Object v : valores) lista.add(v);
+        for (Object v : valores)
+            lista.add(v);
         return lista;
     }
 }

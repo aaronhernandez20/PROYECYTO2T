@@ -9,10 +9,10 @@ import combate.Combate;
 import db.ConexionBD;
 import db.EstadoPartida;
 import db.PersistenciaPartida;
-import db.EstadisticasVisualizar;
-import db.GestorHistorial;
-import db.GestorLogros;
-import db.Ranking;
+import db.historial.GestorHistorial;
+import db.logros.GestorLogros;
+import db.ranking.Ranking;
+import db.visualizacion.EstadisticasVisualizar;
 import personajes.Personajes;
 
 public class Main {
