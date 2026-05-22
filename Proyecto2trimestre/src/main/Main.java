@@ -32,17 +32,26 @@ public class Main {
             System.out.println("4. Ver historial de partidas");
             System.out.println("5. Ver estadisticas");
             System.out.println("6. Ver logros");
-            System.out.println("7. Salir");
+            System.out.println("7. Borrar partida");
+            System.out.println("8. Salir");
             System.out.print("Elige una opcion: ");
             int opcion = scanner.nextInt();
 
-            if (opcion == 7) {
+            if (opcion == 8) {
                 seguir = false;
                 break;
             }
 
             if (opcion == 6) {
                 GestorLogros.mostrarLogrosGlobal();
+                continue;
+            }
+
+            if (opcion == 7) {
+                PersistenciaPartida.listarPartidas();
+                System.out.print("  Introduce el ID de la partida a borrar: ");
+                int idBorrar = scanner.nextInt();
+                PersistenciaPartida.borrarPartida(idBorrar);
                 continue;
             }
 

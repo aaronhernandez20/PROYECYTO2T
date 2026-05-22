@@ -44,9 +44,11 @@ public class GestorLogros {
 
         // Cargar logros ya desbloqueados
         List<Object[]> filas = ConexionBD.consultar(
-                "SELECT nombre FROM logros WHERE ID_jugador = ?", params(id));
+                "SELECT l.nombre FROM logros_jugador lj " +
+                "JOIN logros l ON l.ID_logro = lj.ID_logro " +
+                "WHERE lj.ID_jugador = ?", params(id));
         for (Object[] fila : filas) {
-            activarLogro((String) fila[0]);
+            activarLogro(((String) fila[0]).replace("_", " "));
         }
 
         // Cargar contadores acumulados
@@ -210,7 +212,9 @@ public class GestorLogros {
             String nom = (String) fila[1];
 
             List<Object[]> logros = ConexionBD.consultar(
-                    "SELECT nombre FROM logros WHERE ID_jugador = ? ORDER BY nombre",
+                    "SELECT l.nombre FROM logros_jugador lj " +
+                    "JOIN logros l ON l.ID_logro = lj.ID_logro " +
+                    "WHERE lj.ID_jugador = ? ORDER BY l.ID_logro",
                     params(id));
 
             System.out.println("\n  [" + nom + "]  " + logros.size() + "/13 logros");
@@ -219,7 +223,8 @@ public class GestorLogros {
                 System.out.println("  Aun no ha desbloqueado ningun logro.");
             } else {
                 for (Object[] l : logros) {
-                    System.out.println("  [X] " + l[0]);
+                    String nombreMostrar = ((String) l[0]).replace("_", " ");
+                    System.out.println("  [X] " + nombreMostrar);
                 }
             }
         }
@@ -275,9 +280,11 @@ public class GestorLogros {
     private void guardarLogro(String nombre) {
         if (idJugador <= 0)
             return;
+        String nombreBD = nombre.replace(" ", "_");
         ConexionBD.ejecutar(
-                "INSERT IGNORE INTO logros (ID_jugador, nombre) VALUES (?, ?)",
-                params(idJugador, nombre));
+                "INSERT IGNORE INTO logros_jugador (ID_jugador, ID_logro) " +
+                "SELECT ?, ID_logro FROM logros WHERE nombre = ?",
+                params(idJugador, nombreBD));
     }
 
     private void guardarContadores() {

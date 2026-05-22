@@ -25,13 +25,6 @@ public class PersistenciaPartida {
             ")", new ArrayList<>());
 
         ConexionBD.ejecutar(
-            "CREATE TABLE IF NOT EXISTS logros (" +
-            "ID_jugador INT NOT NULL, " +
-            "nombre VARCHAR(60) NOT NULL, " +
-            "PRIMARY KEY (ID_jugador, nombre)" +
-            ")", new ArrayList<>());
-
-        ConexionBD.ejecutar(
             "ALTER TABLE jugadores ADD COLUMN IF NOT EXISTS hechizosTotal INT DEFAULT 0",
             new ArrayList<>());
         ConexionBD.ejecutar(
@@ -311,6 +304,20 @@ public class PersistenciaPartida {
             String fecha = fila[3].toString();
             System.out.println("  [" + id + "] Ronda: " + rondas + " | " + res + " | " + fecha);
         }
+    }
+
+    // Borra una partida y todos sus datos asociados de la BD.
+    public static void borrarPartida(int idCombate) {
+        List<Object[]> filas = ConexionBD.consultar(
+            "SELECT ID_COMBATE FROM COMBATE WHERE ID_COMBATE=?", params(idCombate));
+        if (filas.isEmpty()) {
+            System.out.println("  No existe ninguna partida con ID " + idCombate + ".");
+            return;
+        }
+        ConexionBD.ejecutar("DELETE FROM COMBATE_PERSONAJE WHERE ID_COMBATE=?", params(idCombate));
+        ConexionBD.ejecutar("DELETE FROM HISTORIAL WHERE ID_COMBATE=?", params(idCombate));
+        ConexionBD.ejecutar("DELETE FROM COMBATE WHERE ID_COMBATE=?", params(idCombate));
+        System.out.println("  Partida " + idCombate + " borrada correctamente.");
     }
 
     // Helper para crear la lista de parametros de forma limpia.
