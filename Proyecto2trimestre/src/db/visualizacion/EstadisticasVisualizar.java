@@ -19,12 +19,7 @@ import personajes.Personajes;
  * Para usarlo desde Main:
  * EstadisticasVisualizer.mostrarVidaInicial();
  * 
- * Requiere la dependencia XChart en pom.xml:
- * <dependency>
- * <groupId>org.knowm.xchart</groupId>
- * <artifactId>xchart</artifactId>
- * <version>3.8.7</version>
- * </dependency>
+ * Requiere la dependencia XChart en pom.xml (org.knowm.xchart, version 3.8.7).
  */
 public class EstadisticasVisualizar {
 

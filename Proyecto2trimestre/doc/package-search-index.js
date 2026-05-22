@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"armas"},{"l":"catalogo"},{"l":"combate"},{"l":"db"},{"l":"db.historial"},{"l":"db.logros"},{"l":"db.ranking"},{"l":"db.visualizacion"},{"l":"estados"},{"l":"hechizos"},{"l":"main"},{"l":"personajes"}];updateSearchResults();
