@@ -45,8 +45,7 @@ public class Combate {
 
 	    // Añadir hechizos disponibles
 	    for (Hechizos hechizo : atacante.getHechizos()) {
-	        if (atacante.getCooldown(hechizo.getNombre()) == 0
-	                && atacante.getRecursoActual() >= hechizo.getCosteMana()) {
+	        if (atacante.puedeLanzarHechizo(hechizo)) {
 	            opciones.add("HECHIZO:" + hechizo.getNombre());
 	            System.out.println("  " + opciones.size() + ". Usar hechizo: " + hechizo.getNombre()
 	                    + " [coste: " + hechizo.getCosteMana() + " mana]"
@@ -248,8 +247,7 @@ public class Combate {
 	            Personajes objetivo = obtenerEnemigoVivo(enemigos);
 	            if (objetivo != null) {
 	                // puedeUsarse comprueba cooldown y recurso internamente
-	                if (atacante.getCooldown(hechizo.getNombre()) == 0
-	                        && atacante.getRecursoActual() >= hechizo.getCosteMana()) {
+	                if (atacante.puedeLanzarHechizo(hechizo)) {
 	                    hechizo.lanzar(atacante, objetivo);
 	                    esperar(1500);
 	                    System.out.println();
@@ -259,8 +257,7 @@ public class Combate {
 	        } else if (hechizo.getTipoObjetivo() == Hechizos.TipoObjetivo.ALIADO_UNICO) {
 	            Personajes objetivo = obtenerAliadoMasDebil(aliados);
 	            if (objetivo != null) {
-	                if (atacante.getCooldown(hechizo.getNombre()) == 0
-	                        && atacante.getRecursoActual() >= hechizo.getCosteMana()) {
+	                if (atacante.puedeLanzarHechizo(hechizo)) {
 	                    hechizo.lanzar(atacante, objetivo);
 	                    esperar(1500);
 	                    System.out.println();

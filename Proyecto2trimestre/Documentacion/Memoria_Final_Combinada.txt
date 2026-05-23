@@ -1,0 +1,446 @@
+================================================================
+         PROYECTO INTERMODULAR BASE DE DATOS - PROGRAMACIÓN
+       Persistencia en un juego de rol por turnos (Witcher RPG)
+                         3er Trimestre
+================================================================
+
+Nombre del alumno/a:    Aarón Hernández Moreno y Víctor de Lucas Fernández
+Curso académico:        1º DAM G2
+Tutor del proyecto:     Carlos Galaron
+
+
+================================================================
+                         ÍNDICE PAGINADO
+================================================================
+
+  1. JUSTIFICACIÓN DEL PROYECTO ........................... X
+  2. INTRODUCCIÓN .......................................... X
+  3. OBJETIVOS ............................................. X
+       3.1. Objetivo general ............................... X
+       3.2. Objetivos específicos .......................... X
+  4. DESARROLLO ............................................ X
+       4.1. Fundamentación teórica ......................... X
+       4.2. Materiales y métodos ........................... X
+       4.3. Resultados y análisis .......................... X
+  5. CONCLUSIONES .......................................... X
+  6. LÍNEAS DE INVESTIGACIÓN FUTURAS ....................... X
+  7. BIBLIOGRAFÍA .......................................... X
+  8. ANEXOS ................................................ X
+  9. OTROS PUNTOS .......................................... X
+
+
+================================================================
+                   1. JUSTIFICACIÓN DEL PROYECTO
+================================================================
+
+Durante el segundo trimestre desarrollamos en la asignatura de Programación
+un juego de rol por turnos ambientado en el universo de The Witcher. El juego
+cuenta con un sistema de combate entre dos equipos de tres personajes cada uno,
+mecánicas de armas, hechizos y estados alterados, todo gestionado en memoria
+mediante objetos de Java.
+
+El problema de ese diseño inicial es que toda la información desaparecía al
+cerrar el programa: cada vez que se ejecutaba el juego, los personajes volvían
+a su estado inicial y no quedaba ningún registro de las partidas jugadas. Para
+un juego real esto no es aceptable, ya que el jugador espera poder guardar su
+progreso y retomarlo más adelante.
+
+Este proyecto intermodular surge precisamente de esa necesidad: dotar al juego
+de persistencia mediante una base de datos relacional en MySQL. La justificación
+es doble. Por un lado, académica, ya que integra los contenidos de las
+asignaturas de Bases de Datos y Programación en un único proyecto coherente.
+Por otro lado, práctica, porque reproduce un escenario habitual en el
+desarrollo de software profesional: separar la lógica de negocio de la capa
+de persistencia de datos.
+
+La elección de MySQL como sistema gestor de base de datos se justifica por ser
+uno de los más utilizados en el ámbito profesional, por su gratuidad, por su
+amplia documentación y por su integración sencilla con Java a través del
+conector JDBC.
+
+
+================================================================
+                          2. INTRODUCCIÓN
+================================================================
+
+La presente memoria documenta el diseño e implementación de la base de datos
+del proyecto Witcher RPG, así como su integración con el código Java del juego.
+El objetivo es que el juego sea capaz de guardar el estado completo de una
+partida, cargarlo posteriormente, listar las partidas disponibles y borrar las
+que ya no se deseen conservar, todo ello mediante operaciones CRUD
+(Create, Read, Update, Delete).
+
+El juego enfrenta a dos equipos: el bando bueno, formado por Geralt de Rivia,
+Yennefer de Vengerberg y Ciri; y el bando malo, La Cacería Salvaje, formado por
+Imlerith, Caranthir y Eredin. Cada personaje pertenece a una de tres clases
+(Guerrero, Mago o Sacerdote), cada una con mecánicas propias, y dispone de dos
+armas y uno o varios hechizos. La base de datos debe reflejar fielmente esta
+estructura de objetos.
+
+Esto plantea un reto interesante de modelado: trasladar una jerarquía de
+herencia de Java (la clase abstracta Personajes con sus subclases) y unas
+relaciones de muchos a muchos (un personaje tiene varias armas, varios hechizos
+y participa en varios combates) a un modelo relacional normalizado.
+
+A lo largo de la memoria se describe la fundamentación teórica del modelo, las
+herramientas y la metodología empleadas, y los resultados obtenidos, incluyendo
+el script SQL completo, las operaciones CRUD y la correspondencia entre las
+clases Java y las tablas de la base de datos.
+
+
+================================================================
+                           3. OBJETIVOS
+================================================================
+
+3.1. Objetivo general
+---------------------
+Diseñar e implementar una base de datos relacional en MySQL que permita dotar
+de persistencia al juego Witcher RPG, integrándola con el código Java mediante
+JDBC para guardar, cargar, listar y borrar partidas.
+
+
+3.2. Objetivos específicos
+--------------------------
+- Modelar mediante un diagrama entidad-relación las entidades del juego
+  (personajes, armas, hechizos, estados y combates) y sus relaciones.
+
+- Traducir la jerarquía de herencia de las clases de personajes (Guerrero,
+  Mago, Sacerdote) a tablas relacionales mediante la técnica de tabla por
+  subtipo.
+
+- Resolver las relaciones de muchos a muchos mediante tablas intermedias
+  (personaje-arma, personaje-hechizo, combate-personaje).
+
+- Implementar las operaciones CRUD necesarias para gestionar partidas guardadas.
+
+- Poblar la base de datos con los datos del catálogo del juego (personajes,
+  armas y hechizos con sus estadísticas reales).
+
+- Garantizar la integridad referencial de los datos mediante claves primarias,
+  foráneas y restricciones.
+
+- Documentar la correspondencia entre las clases Java y las tablas de la base
+  de datos.
+
+
+================================================================
+                          4. DESARROLLO
+================================================================
+
+4.1. Fundamentación teórica
+----------------------------
+El modelo de datos se construyó a partir del análisis del código Java del
+juego. A continuación se describen las decisiones de diseño más relevantes.
+
+MODELO ENTIDAD-RELACIÓN
+Se identificaron cinco entidades principales que se corresponden con las clases
+del juego: PERSONAJES, ARMAS, HECHIZOS, ESTADOS y COMBATE. Cada una se traduce
+en una tabla con sus atributos propios.
+
+TRATAMIENTO DE LA HERENCIA
+En el código, la clase abstracta Personajes tiene tres subclases: Guerrero,
+Mago y Sacerdote, cada una con atributos exclusivos (el Guerrero tiene defensa
+por adrenalina y probabilidad de bloqueo; el Mago tiene un multiplicador
+mágico; el Sacerdote tiene un bonus de sanación).
+
+Para representar esta herencia en el modelo relacional se utilizó la técnica de
+tabla por subclase: existe una tabla PERSONAJES con los atributos comunes y
+tres tablas adicionales (GUERRERO, MAGO, SACERDOTE) cuya clave primaria es a
+la vez clave foránea hacia PERSONAJES. De este modo, cada personaje tiene una
+fila en PERSONAJES y otra en la tabla de su clase.
+
+RELACIONES DE MUCHOS A MUCHOS
+El análisis del código reveló tres relaciones de muchos a muchos que no pueden
+representarse directamente en un modelo relacional y requieren tablas intermedias:
+
+  - PERSONAJE_ARMA: un personaje dispone de varias armas y cada arma puede
+    pertenecer a varios personajes. El atributo "equipada" indica cuál arma
+    lleva equipada actualmente.
+
+  - PERSONAJE_HECHIZO: relaciona personajes con hechizos. El atributo
+    "cooldownActual" guarda los turnos que le quedan a cada hechizo para volver
+    a estar disponible.
+
+  - COMBATE_PERSONAJE: resuelve la relación entre combates y personajes. Un
+    combate guardado contiene seis personajes y un personaje puede aparecer en
+    varios combates guardados.
+
+DISCRIMINADORES EN LUGAR DE SUBTIPOS PARA ARMAS Y HECHIZOS
+Tanto las armas (cuerpo a cuerpo / a distancia) como los hechizos tienen
+subtipos en el código Java. Sin embargo, esos subtipos no añaden atributos
+nuevos que haya que persistir: solo cambian el comportamiento de un método
+(polimorfismo). Por ello, en la base de datos se utilizó un campo discriminador
+de tipo ENUM en lugar de tablas de subtipo.
+
+DATOS ESTÁTICOS FRENTE A DATOS DINÁMICOS
+Las tablas PERSONAJES, ARMAS, HECHIZOS y sus relaciones contienen datos
+estáticos que se insertan al crear la base de datos. En cambio, las tablas
+COMBATE, COMBATE_PERSONAJE y ESTADOS contienen datos dinámicos que el juego
+va creando, actualizando y borrando durante su ejecución.
+
+
+4.2. Materiales y métodos
+--------------------------
+Para el desarrollo del proyecto se utilizaron las siguientes herramientas y
+tecnologías:
+
+  - MySQL: sistema gestor de base de datos relacional donde se crean las tablas
+    y se almacenan los datos.
+
+  - phpMyAdmin: interfaz web para administrar la base de datos, ejecutar
+    consultas y exportar el script SQL.
+
+  - Java (Eclipse IDE): lenguaje y entorno donde está programado el juego.
+
+  - Conector JDBC (mysql-connector-j): librería que permite a Java conectarse
+    a MySQL, gestionada mediante Maven en el archivo pom.xml.
+
+  - Draw.io: para diseñar el modelo entidad-relación antes de crear las tablas.
+
+METODOLOGÍA
+La metodología seguida fue incremental. En primer lugar se analizó el código
+Java existente para identificar las entidades y relaciones. A continuación se
+elaboró el diagrama entidad-relación, que se fue refinando hasta corregir todas
+las inconsistencias detectadas (relaciones mal definidas, falta de
+cardinalidades, subtipos innecesarios). Después se tradujo el diagrama a
+sentencias CREATE TABLE en SQL y se poblaron las tablas estáticas con los datos
+del catálogo. Finalmente se definieron las operaciones CRUD que el juego
+ejecutará para gestionar las partidas.
+
+ESTRUCTURA DE LA BASE DE DATOS
+La base de datos consta de las siguientes tablas, agrupadas según su función:
+
+  Tabla                  | Tipo                   | Función
+  -----------------------|------------------------|------------------------------
+  PERSONAJES             | Principal              | Datos comunes de los 6 personajes
+  GUERRERO/MAGO/SACERDOTE| Subtipo (ISA)          | Atributos exclusivos de cada clase
+  ARMAS                  | Principal              | Las 12 armas del juego
+  HECHIZOS               | Principal              | Los 10 hechizos del juego
+  ESTADOS                | Principal (dinámica)   | Estados activos del combate
+  COMBATE                | Principal (dinámica)   | Partidas guardadas
+  PERSONAJE_ARMA         | Intermedia             | Armas de cada personaje y cuál equipa
+  PERSONAJE_HECHIZO      | Intermedia             | Hechizos y cooldowns de cada personaje
+  COMBATE_PERSONAJE      | Intermedia (dinámica)  | Personajes en cada combate
+  JUGADORES              | Principal (dinámica)   | Victorias, derrotas y contadores
+  HISTORIAL              | Principal (dinámica)   | Acciones registradas del combate
+  LOGROS                 | Principal (estática)   | Catálogo de los 13 logros disponibles
+  LOGROS_JUGADOR         | Intermedia (dinámica)  | Logros desbloqueados por jugador
+
+
+4.3. Resultados y análisis
+---------------------------
+El resultado del proyecto es una base de datos funcional con su script de
+creación, los datos del catálogo y las operaciones CRUD.
+
+CREACIÓN DE LAS TABLAS PRINCIPALES
+Las tablas se crean con sus claves primarias, tipos de datos adecuados y
+restricciones. Por ejemplo:
+
+  CREATE TABLE PERSONAJES (
+      ID_personaje  INT NOT NULL AUTO_INCREMENT,
+      nombre        VARCHAR(100) NOT NULL,
+      vidaMax       INT NOT NULL,
+      vidaActual    INT NOT NULL,
+      recursoMax    INT NOT NULL,
+      recursoActual INT NOT NULL,
+      ataqueBase    INT NOT NULL,
+      defensaBase   INT NOT NULL,
+      poderMagico   INT NOT NULL DEFAULT 0,
+      PRIMARY KEY (ID_personaje)
+  );
+
+  CREATE TABLE GUERRERO (
+      ID_personaje       INT NOT NULL,
+      defensaAdrenalina  INT NOT NULL,
+      probBloqueo        DOUBLE NOT NULL,
+      PRIMARY KEY (ID_personaje),
+      FOREIGN KEY (ID_personaje) REFERENCES PERSONAJES(ID_personaje)
+  );
+
+TABLAS INTERMEDIAS
+Las tablas intermedias usan una clave primaria compuesta:
+
+  CREATE TABLE PERSONAJE_ARMA (
+      ID_personaje  INT NOT NULL,
+      ID_ARMA       INT NOT NULL,
+      equipada      BOOLEAN NOT NULL DEFAULT FALSE,
+      PRIMARY KEY (ID_personaje, ID_ARMA),
+      FOREIGN KEY (ID_personaje) REFERENCES PERSONAJES(ID_personaje),
+      FOREIGN KEY (ID_ARMA) REFERENCES ARMAS(ID_ARMA)
+  );
+
+DATOS DEL CATÁLOGO: PERSONAJES
+Los seis personajes con sus estadísticas reales:
+
+  Personaje          | Clase     | Vida | Recurso | Ataque/Def | P. Mágico
+  -------------------|-----------|------|---------|------------|-----------
+  Geralt de Rivia    | Guerrero  |  800 |     100 |    85 / 30 |         0
+  Yennefer           | Mago      |  400 |     300 |    30 / 10 |       100
+  Ciri               | Sacerdote |  600 |     200 |    70 / 20 |        50
+  Imlerith           | Guerrero  | 1000 |      50 |    90 / 35 |         0
+  Caranthir          | Mago      |  500 |     280 |    25 / 10 |        90
+  Eredin             | Sacerdote |  750 |     200 |    60 / 25 |        60
+
+OPERACIONES CRUD
+Las cuatro operaciones CRUD se corresponden con momentos concretos del juego:
+
+  Operación | Cuándo ocurre en el juego                    | Tablas afectadas
+  ----------|----------------------------------------------|----------------------------------
+  CREATE    | Al guardar una partida nueva o aplicar estado | COMBATE, COMBATE_PERSONAJE, ESTADOS
+  READ      | Al listar o cargar una partida guardada       | COMBATE, PERSONAJES, PERSONAJE_ARMA,
+            |                                              | PERSONAJE_HECHIZO, ESTADOS
+  UPDATE    | Tras cada turno (vida, recursos, cooldowns)   | PERSONAJES, PERSONAJE_HECHIZO,
+            |                                              | PERSONAJE_ARMA, ESTADOS, COMBATE
+  DELETE    | Al borrar una partida o expirar un estado     | ESTADOS, COMBATE_PERSONAJE, COMBATE
+
+Ejemplo de consulta READ que carga el estado completo de un personaje:
+
+  SELECT p.*, pa.ID_ARMA, a.nombre AS arma, pa.equipada,
+         ph.ID_HECHIZO, h.nombre AS hechizo, ph.cooldownActual
+  FROM PERSONAJES p
+  JOIN COMBATE_PERSONAJE cp ON cp.ID_personaje = p.ID_personaje
+  LEFT JOIN PERSONAJE_ARMA pa ON pa.ID_personaje = p.ID_personaje
+  LEFT JOIN ARMAS a ON a.ID_ARMA = pa.ID_ARMA
+  LEFT JOIN PERSONAJE_HECHIZO ph ON ph.ID_personaje = p.ID_personaje
+  LEFT JOIN HECHIZOS h ON h.ID_HECHIZO = ph.ID_HECHIZO
+  WHERE cp.ID_COMBATE = 1 AND p.ID_personaje = 1;
+
+Ejemplo de DELETE respetando la integridad referencial:
+
+  DELETE FROM COMBATE_PERSONAJE WHERE ID_COMBATE = 1;
+  DELETE FROM COMBATE WHERE ID_COMBATE = 1;
+
+CORRESPONDENCIA ENTRE CLASES JAVA Y TABLAS
+
+  Clase Java                       | Tabla BD            | Observaciones
+  ---------------------------------|---------------------|----------------------------------
+  Personajes (abstracta)           | PERSONAJES          | Atributos comunes a todos
+  Guerrero                         | GUERRERO            | PK = FK a PERSONAJES
+  Mago                             | MAGO                | PK = FK a PERSONAJES
+  Sacerdote                        | SACERDOTE           | PK = FK a PERSONAJES
+  Armas (+ subtipos)               | ARMAS               | Subtipo en campo ENUM tipo
+  Hechizos (+ subtipos)            | HECHIZOS            | Subtipo en campo ENUM tipoHechizo
+  Estados (Quemadura, Veneno...)   | ESTADOS             | Subtipo en campo ENUM tipoEstado
+  Combate                          | COMBATE             | Una fila por partida guardada
+  Map de cooldowns                 | PERSONAJE_HECHIZO   | El Map se traduce en filas
+  Lista de armas disponibles       | PERSONAJE_ARMA      | equipada distingue la equipada
+
+INTEGRACIÓN CON JAVA MEDIANTE JDBC
+La conexión con la base de datos se realiza mediante el conector JDBC, declarado
+como dependencia en el archivo pom.xml de Maven. El acceso a los datos se hace
+con sentencias preparadas (PreparedStatement) usando el carácter ? como
+marcador de posición, lo que evita errores de concatenación y protege frente
+a inyección SQL.
+
+
+================================================================
+                         5. CONCLUSIONES
+================================================================
+
+El proyecto ha cumplido el objetivo de dotar de persistencia al juego mediante
+una base de datos relacional en MySQL. Se ha conseguido un modelo normalizado
+que refleja fielmente la estructura de objetos del juego, resolviendo
+correctamente los retos de modelado que planteaba el código original.
+
+Entre los aprendizajes más importantes destaca la traducción de conceptos de la
+programación orientada a objetos al modelo relacional: la herencia se resolvió
+con tablas de subtipo, las colecciones (listas y mapas) se convirtieron en
+tablas intermedias, y el polimorfismo de los subtipos que no añadían datos se
+sustituyó por campos discriminadores de tipo ENUM.
+
+También se ha comprendido la importancia de la integridad referencial y del
+orden de las operaciones, especialmente en los borrados, donde respetar las
+dependencias entre tablas es imprescindible para no provocar errores.
+
+Por último, la distinción entre datos estáticos (catálogo) y datos dinámicos
+(partidas) ha resultado clave para diseñar una base de datos coherente, en la
+que las tablas de partidas arrancan vacías y se van llenando a medida que el
+jugador juega.
+
+
+================================================================
+               6. LÍNEAS DE INVESTIGACIÓN FUTURAS
+================================================================
+
+A partir de la base actual, el proyecto puede ampliarse en varias direcciones:
+
+- Guardado automático tras cada turno, de modo que el progreso nunca se pierda
+  ante un cierre inesperado del juego.
+
+- Ranking global de jugadores ordenado por victorias o nivel, apoyado en la
+  tabla JUGADORES ya creada.
+
+- Historial detallado de partidas que registre todas las acciones relevantes
+  de cada combate.
+
+- Sistema de dificultad configurable almacenado en base de datos, que
+  modifique la vida o el daño de los enemigos sin tocar el código.
+
+- Persistencia completa del sistema de logros, vinculando los logros
+  desbloqueados a cada jugador en la tabla LOGROS_JUGADOR.
+
+
+================================================================
+                          7. BIBLIOGRAFÍA
+================================================================
+
+1. Documentación oficial de MySQL.
+   https://dev.mysql.com/doc/
+
+2. Documentación oficial de phpMyAdmin.
+   https://www.phpmyadmin.net/docs/
+
+3. Documentación del conector MySQL para Java (JDBC).
+   https://dev.mysql.com/doc/connector-j/en/
+
+4. Apuntes y materiales de las asignaturas de Bases de Datos y Programación,
+   1º DAM.
+
+5. Documento de requisitos del proyecto intermodular proporcionado por el
+   profesorado.
+
+
+================================================================
+                            8. ANEXOS
+================================================================
+
+Anexo I.
+  Script SQL completo de creación de tablas e inserción de datos del catálogo
+  (archivo proyecto_rpg.sql).
+
+Anexo II.
+  Diagrama entidad-relación del modelo de datos.
+
+Anexo III.
+  Sentencias CRUD comentadas para las operaciones de guardado, carga, listado
+  y borrado de partidas.
+
+Anexo IV.
+  Código Java de la capa de acceso a datos (conexión JDBC y métodos de
+  persistencia).
+
+
+================================================================
+                         9. OTROS PUNTOS
+================================================================
+
+Aportaciones personales
+------------------------
+[Escribid aquí qué ha aportado cada uno al proyecto, qué partes ha desarrollado
+cada miembro del equipo y cuál ha sido vuestra contribución personal.]
+
+Retos profesionales
+--------------------
+[Escribid aquí qué retos profesionales os ha planteado este proyecto: diseño
+de base de datos, integración Java-MySQL, normalización, etc.]
+
+Retos personales
+-----------------
+[Escribid aquí los retos personales que habéis superado durante el desarrollo:
+trabajo en equipo, gestión del tiempo, aprendizaje de nuevas tecnologías, etc.]
+
+Agradecimientos
+----------------
+[Escribid aquí cualquier agradecimiento que queráis incluir.]
+
+================================================================

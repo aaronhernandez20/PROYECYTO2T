@@ -1,6 +1,5 @@
 package db.historial;
 
-import java.util.ArrayList;
 import java.util.List;
 import db.ConexionBD;
 
@@ -10,21 +9,16 @@ public class GestorHistorial {
 
     // Guarda una accion en la tabla HISTORIAL
     public static void registrar(int idCombate, int ronda, String accion) {
-        List<Object> params = new ArrayList<>();
-        params.add(idCombate);
-        params.add(ronda);
-        params.add(accion);
         ConexionBD.ejecutar(
-                "INSERT INTO HISTORIAL (ID_COMBATE, ronda, accion) VALUES (?, ?, ?)", params);
+                "INSERT INTO HISTORIAL (ID_COMBATE, ronda, accion) VALUES (?, ?, ?)",
+                ConexionBD.params(idCombate, ronda, accion));
     }
 
     // Muestra el historial completo de un combate concreto
     public static void mostrarHistorialCombate(int idCombate) {
-        List<Object> params = new ArrayList<>();
-        params.add(idCombate);
         List<Object[]> filas = ConexionBD.consultar(
                 "SELECT ronda, accion, fecha FROM HISTORIAL WHERE ID_COMBATE = ? ORDER BY ID_HISTORIAL ASC",
-                params);
+                ConexionBD.params(idCombate));
 
         System.out.println("\n=== HISTORIAL DEL COMBATE " + idCombate + " ===");
 

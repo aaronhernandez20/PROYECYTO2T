@@ -45,14 +45,14 @@ public class PersistenciaPartida {
     // Busca el jugador por nombre. Si no existe lo crea. Devuelve su ID.
     public static int obtenerOCrearJugador(String nombre) {
         List<Object[]> filas = ConexionBD.consultar(
-            "SELECT ID_jugador FROM jugadores WHERE nombre = ?", params(nombre));
+            "SELECT ID_jugador FROM jugadores WHERE nombre = ?", ConexionBD.params(nombre));
         if (!filas.isEmpty()) {
             int id = ((Number) filas.get(0)[0]).intValue();
             System.out.println("[BD] Bienvenido de nuevo, " + nombre + " (ID: " + id + ")");
             return id;
         }
         int id = ConexionBD.ejecutarYObtenerId(
-            "INSERT INTO jugadores (nombre) VALUES (?)", params(nombre));
+            "INSERT INTO jugadores (nombre) VALUES (?)", ConexionBD.params(nombre));
         System.out.println("[BD] Nuevo jugador registrado: " + nombre + " (ID: " + id + ")");
         return id;
     }
@@ -63,11 +63,11 @@ public class PersistenciaPartida {
         if (victoria) {
             ConexionBD.ejecutar(
                 "UPDATE jugadores SET victorias = victorias + 1 WHERE ID_jugador = ?",
-                params(idJugador));
+                ConexionBD.params(idJugador));
         } else {
             ConexionBD.ejecutar(
                 "UPDATE jugadores SET derrotas = derrotas + 1 WHERE ID_jugador = ?",
-                params(idJugador));
+                ConexionBD.params(idJugador));
         }
     }
 
@@ -78,7 +78,7 @@ public class PersistenciaPartida {
         if (idJugador > 0) {
             idCombate = ConexionBD.ejecutarYObtenerId(
                 "INSERT INTO COMBATE (turno, nRondas, ID_jugador) VALUES (1, 0, ?)",
-                params(idJugador));
+                ConexionBD.params(idJugador));
         } else {
             idCombate = ConexionBD.ejecutarYObtenerId(
                 "INSERT INTO COMBATE (turno, nRondas) VALUES (1, 0)", new ArrayList<>());
@@ -87,7 +87,7 @@ public class PersistenciaPartida {
         for (int idPersonaje = 1; idPersonaje <= 6; idPersonaje++) {
             ConexionBD.ejecutar(
                 "INSERT INTO COMBATE_PERSONAJE (ID_COMBATE, ID_personaje) VALUES (?, ?)",
-                params(idCombate, idPersonaje));
+                ConexionBD.params(idCombate, idPersonaje));
         }
 
         System.out.println("[BD] Nueva partida creada con ID: " + idCombate);
@@ -97,13 +97,12 @@ public class PersistenciaPartida {
     // Guarda el estado actual de todos los personajes y la ronda en la BD.
     public static void guardarEstado(int idCombate, ArrayList<Personajes> equipoBueno,
                                      ArrayList<Personajes> equipoMalo, int ronda) {
-        ArrayList<Personajes> todos = new ArrayList<>(equipoBueno);
-        todos.addAll(equipoMalo);
+        ArrayList<Personajes> todos = combinarEquipos(equipoBueno, equipoMalo);
 
         for (Personajes p : todos) {
             ConexionBD.ejecutar(
                 "UPDATE PERSONAJES SET vidaActual=?, recursoActual=? WHERE ID_personaje=?",
-                params(p.getVidaActual(), p.getRecursoActual(), p.getId()));
+                ConexionBD.params(p.getVidaActual(), p.getRecursoActual(), p.getId()));
 
             guardarArma(p);
             guardarCooldowns(p);
@@ -112,7 +111,7 @@ public class PersistenciaPartida {
 
         ConexionBD.ejecutar(
             "UPDATE COMBATE SET nRondas=? WHERE ID_COMBATE=?",
-            params(ronda, idCombate));
+            ConexionBD.params(ronda, idCombate));
 
         System.out.println("[BD] Partida guardada. Ronda: " + ronda);
     }
@@ -121,7 +120,7 @@ public class PersistenciaPartida {
     private static void guardarArma(Personajes personaje) {
         List<Object[]> filas = ConexionBD.consultar(
             "SELECT ID_ARMA FROM PERSONAJE_ARMA WHERE ID_personaje=? ORDER BY ID_ARMA",
-            params(personaje.getId()));
+            ConexionBD.params(personaje.getId()));
 
         // Buscar qué índice (0 o 1) tiene el arma equipada
         int indexEquipada = 0;
@@ -138,7 +137,7 @@ public class PersistenciaPartida {
             int equipada = (i == indexEquipada) ? 1 : 0;
             ConexionBD.ejecutar(
                 "UPDATE PERSONAJE_ARMA SET equipada=? WHERE ID_personaje=? AND ID_ARMA=?",
-                params(equipada, personaje.getId(), idArma));
+                ConexionBD.params(equipada, personaje.getId(), idArma));
         }
     }
 
@@ -146,7 +145,7 @@ public class PersistenciaPartida {
     private static void guardarCooldowns(Personajes personaje) {
         List<Object[]> filas = ConexionBD.consultar(
             "SELECT ID_HECHIZO FROM PERSONAJE_HECHIZO WHERE ID_personaje=? ORDER BY ID_HECHIZO",
-            params(personaje.getId()));
+            ConexionBD.params(personaje.getId()));
 
         ArrayList<Hechizos> hechizos = personaje.getHechizos();
         for (int i = 0; i < filas.size() && i < hechizos.size(); i++) {
@@ -154,7 +153,7 @@ public class PersistenciaPartida {
             int cd = personaje.getCooldown(hechizos.get(i).getNombre());
             ConexionBD.ejecutar(
                 "UPDATE PERSONAJE_HECHIZO SET cooldownActual=? WHERE ID_personaje=? AND ID_HECHIZO=?",
-                params(cd, personaje.getId(), idHechizo));
+                ConexionBD.params(cd, personaje.getId(), idHechizo));
         }
     }
 
@@ -162,7 +161,7 @@ public class PersistenciaPartida {
     private static void guardarEstados(Personajes personaje) {
         ConexionBD.ejecutar(
             "DELETE FROM ESTADOS WHERE ID_personaje=?",
-            params(personaje.getId()));
+            ConexionBD.params(personaje.getId()));
 
         for (Estados estado : personaje.getEstadosActivos()) {
             String tipo = estado.getTipo() == Estados.TipoEstado.DOT ? "DOT" : "HOT";
@@ -172,7 +171,7 @@ public class PersistenciaPartida {
             }
             ConexionBD.ejecutar(
                 "INSERT INTO ESTADOS (ID_personaje, nombre, turnosRestantes, potenciaPorTurno, tipoEstado, aplicadoPorSacerdote) VALUES (?,?,?,?,?,?)",
-                params(personaje.getId(), estado.getNombre(), estado.getTurnosRestantes(),
+                ConexionBD.params(personaje.getId(), estado.getNombre(), estado.getTurnosRestantes(),
                        estado.getPotenciaPorTurno(), tipo, porSacerdote));
         }
     }
@@ -181,7 +180,7 @@ public class PersistenciaPartida {
     // Devuelve null si no existe ese combate.
     public static EstadoPartida cargarEstado(int idCombate) {
         List<Object[]> filas = ConexionBD.consultar(
-            "SELECT nRondas, ID_jugador FROM COMBATE WHERE ID_COMBATE=?", params(idCombate));
+            "SELECT nRondas, ID_jugador FROM COMBATE WHERE ID_COMBATE=?", ConexionBD.params(idCombate));
 
         if (filas.isEmpty()) {
             System.out.println("[BD] No existe el combate con ID: " + idCombate);
@@ -202,14 +201,13 @@ public class PersistenciaPartida {
         equipoMalo.add(CatalogoPersonajes.crearCaranthir());
         equipoMalo.add(CatalogoPersonajes.crearEredin());
 
-        ArrayList<Personajes> todos = new ArrayList<>(equipoBueno);
-        todos.addAll(equipoMalo);
+        ArrayList<Personajes> todos = combinarEquipos(equipoBueno, equipoMalo);
 
         for (Personajes p : todos) {
             // Restaurar vida y recurso
             List<Object[]> stats = ConexionBD.consultar(
                 "SELECT vidaActual, recursoActual FROM PERSONAJES WHERE ID_personaje=?",
-                params(p.getId()));
+                ConexionBD.params(p.getId()));
             if (!stats.isEmpty()) {
                 p.setVidaActual(((Number) stats.get(0)[0]).intValue());
                 p.setRecursoActual(((Number) stats.get(0)[1]).intValue());
@@ -228,7 +226,7 @@ public class PersistenciaPartida {
     private static void cargarArma(Personajes personaje) {
         List<Object[]> filas = ConexionBD.consultar(
             "SELECT equipada FROM PERSONAJE_ARMA WHERE ID_personaje=? ORDER BY ID_ARMA",
-            params(personaje.getId()));
+            ConexionBD.params(personaje.getId()));
 
         ArrayList<Armas> disponibles = personaje.getArmasDisponibles();
         for (int i = 0; i < filas.size() && i < disponibles.size(); i++) {
@@ -243,7 +241,7 @@ public class PersistenciaPartida {
     private static void cargarCooldowns(Personajes personaje) {
         List<Object[]> filas = ConexionBD.consultar(
             "SELECT cooldownActual FROM PERSONAJE_HECHIZO WHERE ID_personaje=? ORDER BY ID_HECHIZO",
-            params(personaje.getId()));
+            ConexionBD.params(personaje.getId()));
 
         ArrayList<Hechizos> hechizos = personaje.getHechizos();
         for (int i = 0; i < filas.size() && i < hechizos.size(); i++) {
@@ -258,7 +256,7 @@ public class PersistenciaPartida {
     private static void cargarEstados(Personajes personaje) {
         List<Object[]> filas = ConexionBD.consultar(
             "SELECT nombre, turnosRestantes, potenciaPorTurno, aplicadoPorSacerdote FROM ESTADOS WHERE ID_personaje=?",
-            params(personaje.getId()));
+            ConexionBD.params(personaje.getId()));
 
         for (Object[] fila : filas) {
             String nombre = (String) fila[0];
@@ -283,7 +281,7 @@ public class PersistenciaPartida {
     public static void finalizarPartida(int idCombate, int rondas, String resumen) {
         ConexionBD.ejecutar(
             "UPDATE COMBATE SET nRondas=?, resumenFinal=? WHERE ID_COMBATE=?",
-            params(rondas, resumen, idCombate));
+            ConexionBD.params(rondas, resumen, idCombate));
         System.out.println("[BD] Partida " + idCombate + " finalizada. " + resumen);
     }
 
@@ -309,21 +307,20 @@ public class PersistenciaPartida {
     // Borra una partida y todos sus datos asociados de la BD.
     public static void borrarPartida(int idCombate) {
         List<Object[]> filas = ConexionBD.consultar(
-            "SELECT ID_COMBATE FROM COMBATE WHERE ID_COMBATE=?", params(idCombate));
+            "SELECT ID_COMBATE FROM COMBATE WHERE ID_COMBATE=?", ConexionBD.params(idCombate));
         if (filas.isEmpty()) {
             System.out.println("  No existe ninguna partida con ID " + idCombate + ".");
             return;
         }
-        ConexionBD.ejecutar("DELETE FROM COMBATE_PERSONAJE WHERE ID_COMBATE=?", params(idCombate));
-        ConexionBD.ejecutar("DELETE FROM HISTORIAL WHERE ID_COMBATE=?", params(idCombate));
-        ConexionBD.ejecutar("DELETE FROM COMBATE WHERE ID_COMBATE=?", params(idCombate));
+        ConexionBD.ejecutar("DELETE FROM COMBATE_PERSONAJE WHERE ID_COMBATE=?", ConexionBD.params(idCombate));
+        ConexionBD.ejecutar("DELETE FROM HISTORIAL WHERE ID_COMBATE=?", ConexionBD.params(idCombate));
+        ConexionBD.ejecutar("DELETE FROM COMBATE WHERE ID_COMBATE=?", ConexionBD.params(idCombate));
         System.out.println("  Partida " + idCombate + " borrada correctamente.");
     }
 
-    // Helper para crear la lista de parametros de forma limpia.
-    private static List<Object> params(Object... valores) {
-        List<Object> lista = new ArrayList<>();
-        for (Object v : valores) lista.add(v);
-        return lista;
+    private static ArrayList<Personajes> combinarEquipos(ArrayList<Personajes> equipoBueno, ArrayList<Personajes> equipoMalo) {
+        ArrayList<Personajes> todos = combinarEquipos(equipoBueno, equipoMalo);
+        return todos;
     }
+
 }

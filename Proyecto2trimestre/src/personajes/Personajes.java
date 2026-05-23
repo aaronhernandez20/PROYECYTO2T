@@ -220,6 +220,11 @@ public abstract class Personajes {
 		cooldowns.put(nombreHechizo, turnos);
 	}
 
+	// Devuelve true si el personaje puede lanzar el hechizo (cooldown 0 y recurso suficiente)
+	public boolean puedeLanzarHechizo(Hechizos hechizo) {
+		return getCooldown(hechizo.getNombre()) == 0 && getRecursoActual() >= hechizo.getCosteMana();
+	}
+
 	// Reduce en 1 el cooldown de todos los hechizos del Map al final de cada ronda.
 	// Cuando llega a 0 el hechizo vuelve a estar disponible.
 	public void reducirCooldowns() {

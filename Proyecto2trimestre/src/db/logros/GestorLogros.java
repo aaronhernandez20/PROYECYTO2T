@@ -1,6 +1,5 @@
 package db.logros;
 
-import java.util.ArrayList;
 import java.util.List;
 import db.ConexionBD;
 import personajes.Personajes;
@@ -46,7 +45,7 @@ public class GestorLogros {
         List<Object[]> filas = ConexionBD.consultar(
                 "SELECT l.nombre FROM logros_jugador lj " +
                 "JOIN logros l ON l.ID_logro = lj.ID_logro " +
-                "WHERE lj.ID_jugador = ?", params(id));
+                "WHERE lj.ID_jugador = ?", ConexionBD.params(id));
         for (Object[] fila : filas) {
             activarLogro(((String) fila[0]).replace("_", " "));
         }
@@ -55,7 +54,7 @@ public class GestorLogros {
         List<Object[]> stats = ConexionBD.consultar(
                 "SELECT victorias, hechizosTotal, curacionTotal, quemadurasAplicadas, renovaresPorSacerdote " +
                         "FROM jugadores WHERE ID_jugador = ?",
-                params(id));
+                ConexionBD.params(id));
         if (!stats.isEmpty()) {
             combatesGanados = ((Number) stats.get(0)[0]).intValue();
             hechizosTotal = ((Number) stats.get(0)[1]).intValue();
@@ -215,7 +214,7 @@ public class GestorLogros {
                     "SELECT l.nombre FROM logros_jugador lj " +
                     "JOIN logros l ON l.ID_logro = lj.ID_logro " +
                     "WHERE lj.ID_jugador = ? ORDER BY l.ID_logro",
-                    params(id));
+                    ConexionBD.params(id));
 
             System.out.println("\n  [" + nom + "]  " + logros.size() + "/13 logros");
             System.out.println("  " + "-".repeat(40));
@@ -284,7 +283,7 @@ public class GestorLogros {
         ConexionBD.ejecutar(
                 "INSERT IGNORE INTO logros_jugador (ID_jugador, ID_logro) " +
                 "SELECT ?, ID_logro FROM logros WHERE nombre = ?",
-                params(idJugador, nombreBD));
+                ConexionBD.params(idJugador, nombreBD));
     }
 
     private void guardarContadores() {
@@ -294,7 +293,7 @@ public class GestorLogros {
                 "UPDATE jugadores SET hechizosTotal=?, curacionTotal=?, quemadurasAplicadas=?, renovaresPorSacerdote=? "
                         +
                         "WHERE ID_jugador=?",
-                params(hechizosTotal, curacionTotal, quemadurasAplicadas, renovaresPorSacerdote, idJugador));
+                ConexionBD.params(hechizosTotal, curacionTotal, quemadurasAplicadas, renovaresPorSacerdote, idJugador));
     }
 
     private void resetearEstadoCombate() {
@@ -316,10 +315,4 @@ public class GestorLogros {
         System.out.println((desbloqueado ? "[X]" : "[ ]") + " " + nombre);
     }
 
-    private static List<Object> params(Object... valores) {
-        List<Object> lista = new ArrayList<>();
-        for (Object v : valores)
-            lista.add(v);
-        return lista;
-    }
 }
