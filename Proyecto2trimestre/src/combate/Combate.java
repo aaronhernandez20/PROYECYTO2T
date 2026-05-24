@@ -194,6 +194,20 @@ public class Combate {
 	    System.out.println("==========================================================\n");
 	    esperar(2000);
 	}
+	private void procesarEstadosEquipo(ArrayList<Personajes> equipo) {
+		for (Personajes p : equipo) {
+			if (p.estaVivo()) {
+				p.procesarEstados();
+			}
+		}
+	}
+
+	private void reducirCooldownsEquipo(ArrayList<Personajes> equipo) {
+		for (Personajes p : equipo) {
+			p.reducirCooldowns();
+		}
+	}
+
 	// Devuelve true si algún personaje del equipo sigue vivo
 	private boolean hayVivos(ArrayList<Personajes> equipo) {
 		for (Personajes p : equipo) {
@@ -347,25 +361,13 @@ public class Combate {
 			// FASE 2: Procesamiento de estados (daño/curacion por turno)
 			System.out.println("\n[EFECTOS DE ESTADO]");
 
-			for (Personajes p : equipoBueno) {
-				if (p.estaVivo()) {
-					p.procesarEstados();
-				}
-			}
-			for (Personajes p : equipoMalo) {
-				if (p.estaVivo()) {
-					p.procesarEstados();
-				}
-			}
+			procesarEstadosEquipo(equipoBueno);
+			procesarEstadosEquipo(equipoMalo);
 
 			// Reducimos el cooldown de todos los hechizos de todos los personajes
 			// al final de la ronda para que vayan recuperandose turno a turno.
-			for (Personajes p : equipoBueno) {
-				p.reducirCooldowns();
-			}
-			for (Personajes p : equipoMalo) {
-				p.reducirCooldowns();
-			}
+			reducirCooldownsEquipo(equipoBueno);
+			reducirCooldownsEquipo(equipoMalo);
 
 			// Registrar muertes de esta ronda (solo si no se han registrado ya antes)
 			for (Personajes p : equipoBueno) {

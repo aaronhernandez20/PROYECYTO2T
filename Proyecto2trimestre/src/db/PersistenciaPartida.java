@@ -319,7 +319,8 @@ public class PersistenciaPartida {
     }
 
     private static ArrayList<Personajes> combinarEquipos(ArrayList<Personajes> equipoBueno, ArrayList<Personajes> equipoMalo) {
-        ArrayList<Personajes> todos = combinarEquipos(equipoBueno, equipoMalo);
+        ArrayList<Personajes> todos = new ArrayList<>(equipoBueno);
+        todos.addAll(equipoMalo);
         return todos;
     }
 
