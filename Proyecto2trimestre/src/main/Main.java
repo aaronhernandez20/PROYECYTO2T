@@ -178,16 +178,16 @@ public class Main {
         while (true) {
             System.out.print("¿Como te llamas, Cazador? ");
             String nombre = scanner.nextLine().trim();
-            if (nombre.isEmpty()) {
+            int letras = 0;
+            for (int i = 0; i < nombre.length(); i++) {
+                letras++;
+            }
+            if (letras == 0) {
                 System.out.println("  Error: el nombre no puede estar vacio.");
                 continue;
             }
-            if (nombre.length() > 20) {
+            if (letras > 20) {
                 System.out.println("  Error: el nombre no puede tener mas de 20 letras.");
-                continue;
-            }
-            if (!nombre.matches("[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ ]+")) {
-                System.out.println("  Error: solo se permiten letras, sin numeros ni simbolos.");
                 continue;
             }
             return nombre;

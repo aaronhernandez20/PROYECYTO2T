@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Witcher — Combat</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080610;--surf:#100e1c;--card:#13111e;
+  --gold:#c9a227;--gdim:#7a6215;
+  --text:#d8cba8;--dim:#6a5a3a;
+  --good:#4a8acc;--goodt:#7ab0e8;
+  --evil:#8a2020;--evilt:#e87a7a;
+  --magic:#9d6ee0;
+}
+body{background:var(--bg);color:var(--text);font-family:Georgia,serif;font-size:14px;min-height:100vh;overflow-x:hidden}
+
+/* ─── MODE SCREEN ─── */
+#ms{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 50% 40%,#1c1430 0%,var(--bg) 70%);
+  padding:30px 16px;
+}
+.ms-wolf{font-size:4rem;margin-bottom:20px;filter:drop-shadow(0 0 20px rgba(201,162,39,.4))}
+.ms-title{font-family:'Times New Roman',serif;font-size:2.1rem;letter-spacing:6px;color:var(--gold);margin-bottom:6px;text-align:center}
+.ms-sep{width:180px;height:1px;background:linear-gradient(90deg,transparent,var(--gdim),transparent);margin:14px auto 10px}
+.ms-sub{font-size:.7rem;letter-spacing:3px;color:var(--dim);margin-bottom:44px;text-align:center}
+.ms-cards{display:flex;gap:22px;flex-wrap:wrap;justify-content:center}
+.ms-card{
+  width:210px;padding:28px 18px 22px;text-align:center;cursor:pointer;
+  background:rgba(16,14,28,.9);border:1px solid var(--gdim);border-radius:5px;
+  transition:border-color .25s,box-shadow .25s,transform .2s;
+}
+.ms-card:hover{border-color:var(--gold);box-shadow:0 0 28px rgba(201,162,39,.22);transform:translateY(-5px)}
+.ms-cicon{font-size:2.2rem;margin-bottom:14px;display:block}
+.ms-cname{font-family:'Times New Roman',serif;font-size:1rem;letter-spacing:3px;color:var(--gold);margin-bottom:10px}
+.ms-cdesc{font-size:.67rem;color:var(--dim);line-height:1.65;letter-spacing:.4px}
+.ms-badge{display:inline-block;margin-top:16px;padding:3px 10px;border-radius:3px;font-size:.58rem;letter-spacing:2px;font-weight:700}
+.ms-badge.auto{background:rgba(74,138,204,.18);border:1px solid var(--good);color:var(--goodt)}
+.ms-badge.man{background:rgba(180,100,20,.18);border:1px solid #c86a20;color:#f0a050}
+.ms-quote{font-size:.62rem;color:var(--dim);margin-top:50px;text-align:center;font-style:italic;letter-spacing:.5px;max-width:480px}
+
+/* ─── COMBAT SCREEN ─── */
+#cs{max-width:1160px;margin:0 auto;padding:10px 14px 14px}
+
+.hdr{text-align:center;padding:11px 0 9px;border-bottom:1px solid var(--gdim);margin-bottom:11px}
+.hdr h1{font-family:'Times New Roman',serif;font-size:1.42rem;color:var(--gold);letter-spacing:5px}
+.hdr-meta{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:5px}
+.mbdg{padding:2px 10px;border-radius:3px;font-size:.58rem;letter-spacing:2px;font-weight:700}
+.mbdg.auto{background:rgba(74,138,204,.22);border:1px solid rgba(74,138,204,.5);color:var(--goodt)}
+.mbdg.man{background:rgba(200,100,20,.22);border:1px solid rgba(200,100,20,.5);color:#f0a050}
+.bk{padding:3px 10px;border:1px solid #2a2020;background:transparent;color:var(--dim);font-family:'Times New Roman',serif;font-size:.58rem;letter-spacing:1.5px;cursor:pointer;border-radius:3px}
+.bk:hover{border-color:var(--gdim);color:var(--gold)}
+
+.arena{display:grid;grid-template-columns:1fr 38px 1fr;margin-bottom:9px;align-items:start}
+.vs-col{display:flex;align-items:center;justify-content:center;padding-top:38px}
+.vs{font-size:.88rem;color:var(--gdim);writing-mode:vertical-rl;letter-spacing:6px;font-weight:700;font-family:'Times New Roman',serif}
+.tcol{padding:0 4px}
+.tlbl{font-size:.6rem;letter-spacing:2.5px;text-align:center;padding:5px 8px;border-radius:3px;margin-bottom:6px;font-weight:700;font-family:'Times New Roman',serif}
+.tlbl.good{background:rgba(20,50,120,.4);border:1px solid rgba(74,138,204,.3);color:var(--goodt)}
+.tlbl.evil{background:rgba(100,15,15,.4);border:1px solid rgba(180,40,40,.3);color:var(--evilt)}
+
+/* ─── CHARACTER CARDS ─── */
+.card{background:var(--card);border:1px solid #2a2030;border-radius:4px;padding:9px 11px;margin-bottom:6px;position:relative;overflow:hidden;transition:opacity .4s,filter .4s,border-color .3s,box-shadow .3s}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.card.good::before{background:linear-gradient(90deg,transparent,#4a8acc88,#4a8acc,#4a8acc88,transparent)}
+.card.evil::before{background:linear-gradient(90deg,transparent,#cc4a4a88,#cc4a4a,#cc4a4a88,transparent)}
+.card.dead{opacity:.22;filter:grayscale(1);pointer-events:none}
+.card.acting{border-color:var(--gold)!important;box-shadow:0 0 18px rgba(201,162,39,.28)}
+.card.fx-dmg{animation:fxd .55s ease}
+.card.fx-heal{animation:fxh .55s ease}
+.card.fx-spell{animation:fxs .55s ease}
+.card.fx-block{animation:fxb .4s ease}
+@keyframes fxd{0%,100%{background:var(--card)}45%{background:rgba(180,30,30,.42)}}
+@keyframes fxh{0%,100%{background:var(--card)}45%{background:rgba(30,150,60,.35)}}
+@keyframes fxs{0%,100%{background:var(--card)}45%{background:rgba(120,60,200,.38)}}
+@keyframes fxb{0%,100%{background:var(--card)}45%{background:rgba(201,162,39,.25)}}
+
+.card-hd{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.cicon{font-size:1.2rem;width:26px;text-align:center;flex-shrink:0}
+.cname{font-family:'Times New Roman',serif;font-size:.75rem;font-weight:700;color:var(--gold);flex:1}
+.cbdg{font-size:.52rem;padding:2px 5px;border-radius:2px;font-weight:700;letter-spacing:1px;flex-shrink:0}
+.cbdg.Guerrero{background:rgba(140,90,20,.4);color:#d4a030;border:1px solid rgba(140,90,20,.5)}
+.cbdg.Mago{background:rgba(100,20,150,.4);color:#b070e8;border:1px solid rgba(100,20,150,.5)}
+.cbdg.Sacerdote{background:rgba(20,90,140,.4);color:#70b0e8;border:1px solid rgba(20,90,140,.5)}
+
+.brow{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.blbl{font-size:.53rem;color:var(--dim);width:16px;text-align:right;flex-shrink:0}
+.bwrap{flex:1;height:7px;background:#181628;border-radius:3px;overflow:hidden}
+.bfill{height:100%;border-radius:3px;transition:width .5s ease}
+.bfill.hp{background:linear-gradient(90deg,#2f8a2f,#55cc55)}
+.bfill.hp.mid{background:linear-gradient(90deg,#8a8a20,#cccc22)}
+.bfill.hp.low{background:linear-gradient(90deg,#8a2020,#cc4444)}
+.bfill.mp{background:linear-gradient(90deg,#2a3a9a,#5580ff)}
+.bval{font-size:.56rem;color:var(--dim);min-width:62px;text-align:right;flex-shrink:0}
+
+.cwep{font-size:.58rem;color:var(--dim);margin-bottom:4px}
+.cwep b{color:var(--text);font-weight:normal}
+
+.cstates{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;min-height:16px}
+.sbdg{font-size:.56rem;padding:1px 7px;border-radius:10px;font-weight:700}
+.sbdg.DOT{background:rgba(200,80,0,.35);border:1px solid rgba(200,80,0,.5);color:#ff8c44}
+.sbdg.HOT{background:rgba(20,160,60,.35);border:1px solid rgba(20,160,60,.5);color:#55dd88}
+
+.cspells{display:flex;flex-wrap:wrap;gap:4px}
+.spbdg{font-size:.54rem;padding:1px 6px;border-radius:2px;background:#181628;border:1px solid #221e38;color:var(--dim)}
+.spbdg.rdy{border-color:var(--magic);color:#c090f0}
+.spbdg.nomana{opacity:.45}
+
+/* ─── CONTROLS ─── */
+.ctrls{display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 0;border-top:1px solid #181628;border-bottom:1px solid #181628;margin-bottom:8px}
+.cbtn{padding:5px 18px;border:1px solid var(--gdim);background:transparent;color:var(--gold);font-family:'Times New Roman',serif;font-size:.68rem;letter-spacing:2px;cursor:pointer;border-radius:3px;transition:.2s}
+.cbtn:hover:not(:disabled){border-color:var(--gold);box-shadow:0 0 10px rgba(201,162,39,.18)}
+.cbtn:disabled{opacity:.3;cursor:default}
+.cbtn.on{background:rgba(201,162,39,.14);border-color:var(--gold)}
+.rlbl{font-size:.6rem;color:var(--dim);letter-spacing:1px}
+
+/* ─── LOG ─── */
+.logwrap{background:var(--surf);border:1px solid #1c1a2e;border-radius:4px;height:155px;overflow-y:auto;padding:7px 10px;scroll-behavior:smooth}
+.logwrap::-webkit-scrollbar{width:3px}
+.logwrap::-webkit-scrollbar-thumb{background:var(--gdim);border-radius:2px}
+.le{font-size:.63rem;line-height:1.75;letter-spacing:.2px}
+.le.rnd{color:var(--gold);font-weight:700;margin-top:3px;border-top:1px solid #1c1a2e;padding-top:3px}
+.le.dmg{color:#e87a7a}
+.le.crit{color:#ff5555;font-weight:700}
+.le.spl{color:#c090e8}
+.le.sts{color:#e8a050}
+.le.heal{color:#55cc88}
+.le.blk{color:var(--gold)}
+.le.dth{color:#993333;font-weight:700}
+.le.inf{color:var(--dim)}
+
+/* ─── ACTION PANEL ─── */
+#ap{position:fixed;bottom:0;left:0;right:0;background:#0c0a1a;border-top:1px solid var(--gdim);padding:10px 20px 16px;transform:translateY(100%);transition:transform .3s ease;z-index:20}
+#ap.show{transform:translateY(0)}
+.aptitle{font-family:'Times New Roman',serif;font-size:.78rem;letter-spacing:3px;color:var(--gold);text-align:center;margin-bottom:10px}
+.apbtns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.apbtn{padding:7px 16px;border:1px solid #2e2840;background:#13111e;color:var(--text);font-family:'Times New Roman',serif;font-size:.64rem;letter-spacing:.8px;cursor:pointer;border-radius:3px;transition:.2s;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:130px}
+.apbtn.sp{border-color:rgba(157,110,224,.45)}
+.apbtn.wep{border-color:rgba(201,162,39,.35)}
+.apbtn:hover:not(.off){border-color:var(--gold);background:#1c1830}
+.apbtn.sp:hover:not(.off){border-color:var(--magic)}
+.apbtn.off{opacity:.32;cursor:not-allowed}
+.apsub{font-size:.54rem;color:var(--dim)}
+
+/* ─── VICTORY OVERLAY ─── */
+#vo{position:fixed;inset:0;background:rgba(4,3,10,.93);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .6s;z-index:100;padding:20px}
+#vo.show{opacity:1;pointer-events:all}
+.votitle{font-family:'Times New Roman',serif;font-size:2.4rem;letter-spacing:7px;margin-bottom:10px;text-align:center}
+.votitle.win{color:var(--gold);text-shadow:0 0 30px rgba(201,162,39,.5)}
+.votitle.lose{color:var(--evilt);text-shadow:0 0 30px rgba(220,50,50,.4)}
+.vosub{font-size:.78rem;letter-spacing:2px;color:var(--dim);margin-bottom:8px;text-align:center}
+.vornds{font-size:.66rem;color:var(--dim);margin-bottom:10px}
+.voquote{font-size:.64rem;font-style:italic;color:var(--dim);margin-bottom:34px;text-align:center;max-width:440px;line-height:1.8}
+.vobtn{padding:10px 32px;border:1px solid var(--gold);background:transparent;color:var(--gold);font-family:'Times New Roman',serif;font-size:.78rem;letter-spacing:3px;cursor:pointer;border-radius:3px;transition:.2s}
+.vobtn:hover{background:rgba(201,162,39,.12)}
+</style>
+</head>
+<body>
+
+<!-- MODE SCREEN -->
+<div id="ms">
+  <div class="ms-wolf">🐺</div>
+  <div class="ms-title">&#9876; WITCHER — COMBAT</div>
+  <div class="ms-sep"></div>
+  <div class="ms-sub">ELIGE TU MODO DE COMBATE</div>
+  <div class="ms-cards">
+    <div class="ms-card" onclick="startGame('auto')">
+      <span class="ms-cicon">&#9881;</span>
+      <div class="ms-cname">AUTOMÁTICO</div>
+      <div class="ms-cdesc">La IA controla a ambos equipos. Observa el combate y avanza ronda a ronda o deja que se desarrolle solo.</div>
+      <span class="ms-badge auto">AUTO</span>
+    </div>
+    <div class="ms-card" onclick="startGame('manual')">
+      <span class="ms-cicon">&#9876;</span>
+      <div class="ms-cname">MANUAL</div>
+      <div class="ms-cdesc">Tú controlas el equipo de Geralt. Elige hechizos y ataques cada turno para derrotar a La Cacería Salvaje.</div>
+      <span class="ms-badge man">MANUAL</span>
+    </div>
+  </div>
+  <div class="ms-quote">"Evil is evil. Lesser, greater, middling — makes no difference. The degree is arbitrary." — Geralt of Rivia</div>
+</div>
+
+<!-- COMBAT SCREEN -->
+<div id="cs" style="display:none">
+  <div class="hdr">
+    <h1>&#9876; WITCHER — COMBAT</h1>
+    <div class="hdr-meta">
+      <span id="mbdg" class="mbdg"></span>
+      <button class="bk" onclick="goBack()">&#8592; MENÚ</button>
+    </div>
+  </div>
+
+  <div class="arena">
+    <div class="tcol">
+      <div class="tlbl good">&#10022; WITCHERS — GERALT'S COMPANY &#10022;</div>
+      <div id="tg"></div>
+    </div>
+    <div class="vs-col"><span class="vs">VS</span></div>
+    <div class="tcol">
+      <div class="tlbl evil">&#10022; THE WILD HUNT — EREDIN'S RIDERS &#10022;</div>
+      <div id="te"></div>
+    </div>
+  </div>
+
+  <div class="ctrls" id="ctrls">
+    <button id="bpaso" class="cbtn" onclick="onPaso()">&#9654; SIGUIENTE</button>
+    <button id="bauto" class="cbtn" onclick="onAuto()">&#10227; AUTO</button>
+    <span id="rlbl" class="rlbl">— pulsa SIGUIENTE o AUTO para avanzar —</span>
+  </div>
+
+  <div class="logwrap"><div id="log"></div></div>
+</div>
+
+<!-- ACTION PANEL -->
+<div id="ap">
+  <div class="aptitle" id="aptitle">TURNO DE GERALT</div>
+  <div class="apbtns" id="apbtns"></div>
+</div>
+
+<!-- VICTORY OVERLAY -->
+<div id="vo">
+  <div class="votitle" id="votitle"></div>
+  <div class="vosub" id="vosub"></div>
+  <div class="vornds" id="vornds"></div>
+  <div class="voquote" id="voquote"></div>
+  <button class="vobtn" onclick="goBack()">&#8592; VOLVER AL MENÚ</button>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// CHARACTER DEFINITIONS (from Java source)
+// ════════════════════════════════════════
+var DEFS = [
+  {id:1,nombre:'Geralt de Rivia',icon:'&#9876;',type:'Guerrero',team:'good',
+   vidaMax:800,recursoMax:100,ataqueBase:85,defensaBase:30,poderMagico:0,
+   defensaAdrenalina:20,probBloqueo:0.20,
+   armas:[
+     {nombre:'Aerondight',tipo:'melee',danoBase:80,mod:1.2,probCrit:0.20},
+     {nombre:'Ballesta Ursina',tipo:'ranged',danoBase:50,mod:1.0,probCrit:0.15}
+   ],
+   hechizos:[
+     {nombre:'Golpe Poderoso',tipo:'DanoDirecto',costeMana:30,potenciaBase:120,cooldownMax:3,objetivo:'enemigo'}
+   ]},
+  {id:2,nombre:'Yennefer de Vengerberg',icon:'&#10022;',type:'Mago',team:'good',
+   vidaMax:400,recursoMax:300,ataqueBase:30,defensaBase:10,poderMagico:100,
+   multiplicadorMagico:1.5,
+   armas:[
+     {nombre:'Daga de Plata',tipo:'melee',danoBase:30,mod:1.0,probCrit:0.10},
+     {nombre:'Cuervo de Cristal',tipo:'ranged',danoBase:55,mod:1.1,probCrit:0.20}
+   ],
+   hechizos:[
+     {nombre:'Signal de Igni',tipo:'DanoDirecto',costeMana:50,potenciaBase:80,cooldownMax:2,objetivo:'enemigo'},
+     {nombre:'Fuego de Vengerberg',tipo:'DanoEnElTiempo',costeMana:40,cooldownMax:3,objetivo:'enemigo'}
+   ]},
+  {id:3,nombre:'Ciri',icon:'&#10022;',type:'Sacerdote',team:'good',
+   vidaMax:600,recursoMax:200,ataqueBase:70,defensaBase:20,poderMagico:50,
+   bonusSanacion:20,
+   armas:[
+     {nombre:'Zireael',tipo:'melee',danoBase:70,mod:1.1,probCrit:0.30},
+     {nombre:'Amuleto Magico',tipo:'ranged',danoBase:45,mod:1.0,probCrit:0.15}
+   ],
+   hechizos:[
+     {nombre:'Pocion de Golondrina',tipo:'CuracionDirecta',costeMana:60,potenciaBase:200,cooldownMax:3,objetivo:'aliado'},
+     {nombre:'Aura de la Vieja Sangre',tipo:'CuracionEnElTiempo',costeMana:50,cooldownMax:4,objetivo:'aliado'}
+   ]},
+  {id:4,nombre:'Imlerith',icon:'&#9760;',type:'Guerrero',team:'evil',
+   vidaMax:1000,recursoMax:50,ataqueBase:90,defensaBase:35,poderMagico:0,
+   defensaAdrenalina:30,probBloqueo:0.15,
+   armas:[
+     {nombre:'Maza Gigante',tipo:'melee',danoBase:100,mod:1.3,probCrit:0.15},
+     {nombre:'Hacha Arrojadiza',tipo:'ranged',danoBase:60,mod:1.0,probCrit:0.10}
+   ],
+   hechizos:[
+     {nombre:'Embestida Brutal',tipo:'DanoDirecto',costeMana:20,potenciaBase:150,cooldownMax:4,objetivo:'enemigo'}
+   ]},
+  {id:5,nombre:'Caranthir',icon:'&#10052;',type:'Mago',team:'evil',
+   vidaMax:500,recursoMax:280,ataqueBase:25,defensaBase:10,poderMagico:90,
+   multiplicadorMagico:1.3,
+   armas:[
+     {nombre:'Baculo de Navegador',tipo:'melee',danoBase:35,mod:1.0,probCrit:0.10},
+     {nombre:'Orbe de Escarcha Blanca',tipo:'ranged',danoBase:65,mod:1.2,probCrit:0.25}
+   ],
+   hechizos:[
+     {nombre:'Lanza de Hielo',tipo:'DanoDirecto',costeMana:45,potenciaBase:70,cooldownMax:2,objetivo:'enemigo'},
+     {nombre:'Escarcha Corrosiva',tipo:'DanoEnElTiempo',costeMana:35,cooldownMax:3,objetivo:'enemigo'}
+   ]},
+  {id:6,nombre:'Eredin',icon:'&#9812;',type:'Sacerdote',team:'evil',
+   vidaMax:750,recursoMax:200,ataqueBase:60,defensaBase:25,poderMagico:60,
+   bonusSanacion:15,
+   armas:[
+     {nombre:'Espada de la Caceria',tipo:'melee',danoBase:75,mod:1.1,probCrit:0.15},
+     {nombre:'Proyeccion Espectral',tipo:'ranged',danoBase:55,mod:1.0,probCrit:0.20}
+   ],
+   hechizos:[
+     {nombre:'Sacrificio Oscuro',tipo:'CuracionDirecta',costeMana:60,potenciaBase:200,cooldownMax:3,objetivo:'aliado'},
+     {nombre:'Presencia del Rey',tipo:'CuracionEnElTiempo',costeMana:50,cooldownMax:4,objetivo:'aliado'}
+   ]}
+];
+
+// ════════════════════════════════════════
+// GAME STATE
+// ════════════════════════════════════════
+var GS = {heroes:[],enemies:[],round:0,mode:'auto',autoOn:false,busy:false,fx:{}};
+
+function createChar(def) {
+  var c = {
+    id:def.id, nombre:def.nombre, icon:def.icon, type:def.type, team:def.team,
+    vidaMax:def.vidaMax, recursoMax:def.recursoMax,
+    ataqueBase:def.ataqueBase, defensaBase:def.defensaBase, poderMagico:def.poderMagico,
+    vidaActual:def.vidaMax, recursoActual:def.recursoMax,
+    alive:true, estados:[], cooldowns:{},
+    hechizos: def.hechizos.map(function(h){return Object.assign({},h);}),
+    armas: def.armas,
+    armaEquipada: def.armas[Math.floor(Math.random()*def.armas.length)]
+  };
+  if (def.defensaAdrenalina !== undefined) c.defensaAdrenalina = def.defensaAdrenalina;
+  if (def.probBloqueo !== undefined) c.probBloqueo = def.probBloqueo;
+  if (def.multiplicadorMagico !== undefined) c.multiplicadorMagico = def.multiplicadorMagico;
+  if (def.bonusSanacion !== undefined) c.bonusSanacion = def.bonusSanacion;
+  return c;
+}
+
+// ════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════
+function aliveList(arr){ return arr.filter(function(c){return c.alive;}); }
+function anyAlive(arr){ return arr.some(function(c){return c.alive;}); }
+function rndAlive(arr){
+  var v=aliveList(arr);
+  return v.length ? v[Math.floor(Math.random()*v.length)] : null;
+}
+function weakest(arr){
+  var v=aliveList(arr);
+  if(!v.length) return null;
+  return v.reduce(function(m,c){return c.vidaActual<m.vidaActual?c:m;});
+}
+function wait(ms){ return new Promise(function(r){setTimeout(r,ms);}); }
+
+// ════════════════════════════════════════
+// COMBAT MECHANICS
+// ════════════════════════════════════════
+
+function dealPhysical(target, raw) {
+  if (target.type==='Guerrero') {
+    if (Math.random() < (target.probBloqueo||0)) {
+      fxFlash(target.id,'fx-block');
+      addLog('! ' + target.nombre + ' ha bloqueado el ataque!','blk');
+      return -1;
+    }
+    raw = Math.max(0, raw - (target.defensaAdrenalina||0));
+  }
+  var final = Math.max(0, raw - target.defensaBase);
+  target.vidaActual = Math.max(0, target.vidaActual - final);
+  if (target.vidaActual<=0) target.alive=false;
+  return final;
+}
+
+function dealMagic(target, dmg) {
+  target.vidaActual = Math.max(0, target.vidaActual - dmg);
+  if (target.vidaActual<=0) target.alive=false;
+  return dmg;
+}
+
+function healChar(target, amount) {
+  if (target.type==='Sacerdote') amount += (target.bonusSanacion||0);
+  var prev = target.vidaActual;
+  target.vidaActual = Math.min(target.vidaMax, target.vidaActual + amount);
+  return target.vidaActual - prev;
+}
+
+function applyStatus(target, st) {
+  var ex = null;
+  for (var i=0;i<target.estados.length;i++) {
+    if (target.estados[i].nombre===st.nombre){ ex=target.estados[i]; break; }
+  }
+  if (ex) {
+    ex.turnosRestantes=st.turnosRestantes;
+    addLog(target.nombre + ': ' + st.nombre + ' renovado.','inf');
+  } else {
+    target.estados.push({nombre:st.nombre,tipo:st.tipo,potenciaPorTurno:st.potenciaPorTurno,turnosRestantes:st.turnosRestantes});
+  }
+}
+
+function weaponAttack(attacker, target) {
+  var w = attacker.armaEquipada;
+  var dmg = Math.floor(w.danoBase * w.mod);
+  var crit = false;
+  if (Math.random() < w.probCrit) { dmg *= w.tipo==='melee'?2:3; crit=true; }
+  var res = dealPhysical(target, dmg);
+  if (res===-1) {
+    fxFlash(target.id,'fx-block');
+  } else {
+    fxFlash(target.id,'fx-dmg');
+    addLog(attacker.nombre + ' ataca con ' + w.nombre + ' -> ' + target.nombre + '. ' + res + ' dmg!' + (crit?' CRITICO!':''), crit?'crit':'dmg');
+    if (!target.alive) addLog('+ ' + target.nombre + ' ha caido en combate.','dth');
+  }
+}
+
+function castSpell(caster, spell, target) {
+  caster.recursoActual -= spell.costeMana;
+  caster.cooldowns[spell.nombre] = spell.cooldownMax;
+
+  if (spell.tipo==='DanoDirecto') {
+    var dmg = spell.potenciaBase + caster.poderMagico;
+    var isMago = caster.type==='Mago';
+    if (isMago) dmg = Math.floor(dmg * caster.multiplicadorMagico);
+    var res = isMago ? dealMagic(target,dmg) : dealPhysical(target,dmg);
+    fxFlash(target.id, res===-1 ? 'fx-block' : 'fx-spell');
+    if (res!==-1) addLog(caster.nombre + ' lanza ' + spell.nombre + ' -> ' + target.nombre + '. ' + res + ' dmg' + (isMago?' MAGICO':'') + '!','spl');
+    if (!target.alive) addLog('+ ' + target.nombre + ' ha caido en combate.','dth');
+
+  } else if (spell.tipo==='DanoEnElTiempo') {
+    var pot=50, turns=3;
+    if (caster.type==='Mago') { pot=Math.floor(50*caster.multiplicadorMagico); turns=4; }
+    applyStatus(target,{nombre:'Quemadura',tipo:'DOT',potenciaPorTurno:pot,turnosRestantes:turns});
+    fxFlash(target.id,'fx-spell');
+    addLog(caster.nombre + ' lanza ' + spell.nombre + ' -> ' + target.nombre + '. Quemadura ' + pot + '/t x' + turns + 't','sts');
+
+  } else if (spell.tipo==='CuracionDirecta') {
+    var h = healChar(target, spell.potenciaBase);
+    fxFlash(target.id,'fx-heal');
+    addLog(caster.nombre + ' lanza ' + spell.nombre + ' -> ' + target.nombre + '. +' + h + ' HP','heal');
+
+  } else if (spell.tipo==='CuracionEnElTiempo') {
+    var pot2 = caster.type==='Sacerdote' ? 60 : 40;
+    applyStatus(target,{nombre:'Renovar',tipo:'HOT',potenciaPorTurno:pot2,turnosRestantes:4});
+    fxFlash(target.id,'fx-heal');
+    addLog(caster.nombre + ' lanza ' + spell.nombre + ' -> ' + target.nombre + '. Renovar +' + pot2 + ' HP/t x4t','sts');
+  }
+}
+
+function canUse(char, spell) {
+  return (char.cooldowns[spell.nombre]||0)===0 && char.recursoActual>=spell.costeMana;
+}
+
+function aiTurn(char, enemies, allies) {
+  for (var i=0;i<char.hechizos.length;i++) {
+    var sp = char.hechizos[i];
+    if (!canUse(char,sp)) continue;
+    var tgt = sp.objetivo==='enemigo' ? rndAlive(enemies) : weakest(allies);
+    if (tgt) { castSpell(char,sp,tgt); return; }
+  }
+  var tgt2 = rndAlive(enemies);
+  if (tgt2) weaponAttack(char,tgt2);
+}
+
+function processStatuses(all) {
+  for (var i=0;i<all.length;i++) {
+    var char=all[i];
+    if (!char.alive) continue;
+    var expired=[];
+    for (var j=0;j<char.estados.length;j++) {
+      var e=char.estados[j];
+      if (e.tipo==='DOT') {
+        var dmg=dealPhysical(char,e.potenciaPorTurno);
+        if (dmg===-1) addLog(char.nombre + ' bloquea ' + e.nombre + '.','blk');
+        else { fxFlash(char.id,'fx-dmg'); addLog(char.nombre + ' sufre ' + dmg + ' dmg por ' + e.nombre + '.','sts'); }
+        if (!char.alive) addLog('+ ' + char.nombre + ' ha caido por ' + e.nombre + '.','dth');
+      } else {
+        var h=healChar(char,e.potenciaPorTurno);
+        fxFlash(char.id,'fx-heal');
+        addLog(char.nombre + ' recupera ' + h + ' HP por ' + e.nombre + '.','heal');
+      }
+      e.turnosRestantes--;
+      if (e.turnosRestantes<=0) expired.push(e);
+    }
+    char.estados=char.estados.filter(function(e){return expired.indexOf(e)===-1;});
+    for (var k=0;k<expired.length;k++) addLog(char.nombre + ': ' + expired[k].nombre + ' expirado.','inf');
+  }
+}
+
+function reduceCDs(all) {
+  for (var i=0;i<all.length;i++) {
+    var c=all[i];
+    for (var k in c.cooldowns) { if(c.cooldowns[k]>0) c.cooldowns[k]--; }
+  }
+}
+
+// ════════════════════════════════════════
+// FLASH EFFECTS
+// ════════════════════════════════════════
+function fxFlash(id, cls) {
+  GS.fx[id]=cls;
+  setTimeout(function(){
+    delete GS.fx[id];
+    var el=document.getElementById('c'+id);
+    if(el) el.classList.remove(cls);
+  },560);
+}
+
+// ════════════════════════════════════════
+// ROUND EXECUTION
+// ════════════════════════════════════════
+async function executeRound() {
+  GS.round++;
+  document.getElementById('rlbl').textContent='— Ronda ' + GS.round + ' —';
+  addLog('======= RONDA ' + GS.round + ' =======','rnd');
+
+  for (var i=0;i<GS.heroes.length;i++) {
+    var hero=GS.heroes[i];
+    if (!hero.alive) continue;
+    if (GS.mode==='manual') {
+      await manualTurn(hero);
+    } else {
+      aiTurn(hero,GS.enemies,GS.heroes);
+    }
+    render(); await wait(700);
+    if (!anyAlive(GS.enemies)) break;
+  }
+
+  if (anyAlive(GS.enemies)) {
+    for (var j=0;j<GS.enemies.length;j++) {
+      var enemy=GS.enemies[j];
+      if (!enemy.alive) continue;
+      aiTurn(enemy,GS.heroes,GS.enemies);
+      render(); await wait(700);
+      if (!anyAlive(GS.heroes)) break;
+    }
+  }
+
+  addLog('— efectos de estado —','inf');
+  processStatuses(GS.heroes.concat(GS.enemies));
+  reduceCDs(GS.heroes.concat(GS.enemies));
+  render();
+
+  if (!anyAlive(GS.enemies)) return 'heroes_win';
+  if (!anyAlive(GS.heroes))  return 'enemies_win';
+  return 'continue';
+}
+
+// ════════════════════════════════════════
+// MANUAL TURN
+// ════════════════════════════════════════
+function manualTurn(hero) {
+  return new Promise(function(resolve) {
+    document.querySelectorAll('.card').forEach(function(c){c.classList.remove('acting');});
+    var el=document.getElementById('c'+hero.id);
+    if(el) el.classList.add('acting');
+
+    var panel=document.getElementById('ap');
+    document.getElementById('aptitle').textContent='TURNO DE ' + hero.nombre.toUpperCase();
+    var btns=document.getElementById('apbtns');
+    btns.innerHTML='';
+
+    function pick(action) {
+      panel.classList.remove('show');
+      document.querySelectorAll('.card').forEach(function(c){c.classList.remove('acting');});
+      if (action.type==='spell') {
+        var tgt = action.spell.objetivo==='enemigo' ? rndAlive(GS.enemies) : weakest(GS.heroes);
+        if (tgt) castSpell(hero,action.spell,tgt);
+      } else {
+        var tgt2=rndAlive(GS.enemies);
+        if (tgt2) weaponAttack(hero,tgt2);
+      }
+      resolve();
+    }
+
+    for (var i=0;i<hero.hechizos.length;i++) {
+      var sp=hero.hechizos[i];
+      var cd=hero.cooldowns[sp.nombre]||0;
+      var noMana=hero.recursoActual<sp.costeMana;
+      var off=cd>0||noMana;
+      var btn=document.createElement('button');
+      btn.className='apbtn sp'+(off?' off':'');
+      var sub='Coste:'+sp.costeMana+' CD:'+sp.cooldownMax+'t';
+      if(cd>0) sub='En cooldown: '+cd+'t';
+      else if(noMana) sub='Sin mana ('+hero.recursoActual+'/'+sp.costeMana+')';
+      else {
+        var tgtP=sp.objetivo==='enemigo'?rndAlive(GS.enemies):weakest(GS.heroes);
+        if(tgtP) sub+=' -> '+tgtP.nombre;
+      }
+      btn.innerHTML='<span>'+sp.nombre+'</span><span class="apsub">'+sub+'</span>';
+      if(!off)(function(s){btn.onclick=function(){pick({type:'spell',spell:s});};})(sp);
+      btns.appendChild(btn);
+    }
+
+    var w=hero.armaEquipada;
+    var tgw=rndAlive(GS.enemies);
+    var wBtn=document.createElement('button');
+    wBtn.className='apbtn wep';
+    wBtn.innerHTML='<span>Ataque: '+w.nombre+'</span><span class="apsub">'+Math.floor(w.danoBase*w.mod)+' base'+(tgw?' -> '+tgw.nombre:'')+'</span>';
+    wBtn.onclick=function(){pick({type:'weapon'});};
+    btns.appendChild(wBtn);
+
+    panel.classList.add('show');
+  });
+}
+
+// ════════════════════════════════════════
+// RENDERING
+// ════════════════════════════════════════
+var ABBR={Guerrero:'GUE',Mago:'MAG',Sacerdote:'SAC'};
+
+function renderChar(c) {
+  var hpPct=Math.max(0,Math.round(c.vidaActual/c.vidaMax*100));
+  var mpPct=Math.max(0,Math.round(c.recursoActual/c.recursoMax*100));
+  var hpCls=hpPct>50?'hp':hpPct>25?'hp mid':'hp low';
+  var deadCls=c.alive?'':' dead';
+  var fxCls=GS.fx[c.id]?' '+GS.fx[c.id]:'';
+
+  var states='<span style="font-size:.52rem;color:#2e2840">Sin efectos</span>';
+  if(c.estados.length){
+    states=c.estados.map(function(e){
+      return '<span class="sbdg '+e.tipo+'">'+(e.tipo==='DOT'?'Quemadura':'Renovar')+' ('+e.turnosRestantes+'t)</span>';
+    }).join('');
+  }
+
+  var spells=c.hechizos.map(function(sp){
+    var cd=c.cooldowns[sp.nombre]||0;
+    var nm=c.recursoActual<sp.costeMana;
+    var cls='spbdg';
+    var txt=sp.nombre;
+    if(cd>0) txt+=' (CD:'+cd+'t)';
+    else if(!nm) cls+=' rdy';
+    else cls+=' nomana';
+    return '<span class="'+cls+'">'+txt+'</span>';
+  }).join('');
+
+  return '<div class="card '+c.team+deadCls+fxCls+'" id="c'+c.id+'">'
+    +'<div class="card-hd">'
+    +'<span class="cicon">'+c.icon+'</span>'
+    +'<span class="cname">'+c.nombre+'</span>'
+    +'<span class="cbdg '+c.type+'">'+ABBR[c.type]+'</span>'
+    +'</div>'
+    +'<div class="brow"><span class="blbl">HP</span><div class="bwrap"><div class="bfill '+hpCls+'" style="width:'+hpPct+'%"></div></div><span class="bval">'+c.vidaActual+'/'+c.vidaMax+'</span></div>'
+    +'<div class="brow"><span class="blbl">MP</span><div class="bwrap"><div class="bfill mp" style="width:'+mpPct+'%"></div></div><span class="bval">'+c.recursoActual+'/'+c.recursoMax+'</span></div>'
+    +'<div class="cwep">Arma: <b>'+c.armaEquipada.nombre+'</b></div>'
+    +'<div class="cstates">'+states+'</div>'
+    +'<div class="cspells">'+spells+'</div>'
+    +'</div>';
+}
+
+function render() {
+  document.getElementById('tg').innerHTML=GS.heroes.map(renderChar).join('');
+  document.getElementById('te').innerHTML=GS.enemies.map(renderChar).join('');
+  var lw=document.getElementById('log').parentElement;
+  lw.scrollTop=lw.scrollHeight;
+}
+
+// ════════════════════════════════════════
+// LOG
+// ════════════════════════════════════════
+function addLog(msg,type) {
+  if(!type) type='inf';
+  var d=document.createElement('div');
+  d.className='le '+type;
+  d.textContent=msg;
+  var log=document.getElementById('log');
+  log.appendChild(d);
+  log.parentElement.scrollTop=log.parentElement.scrollHeight;
+}
+
+// ════════════════════════════════════════
+// VICTORY
+// ════════════════════════════════════════
+function showVictory(heroesWin) {
+  var ov=document.getElementById('vo');
+  document.getElementById('votitle').textContent=heroesWin?'VICTORIA!':'DERROTA';
+  document.getElementById('votitle').className='votitle '+(heroesWin?'win':'lose');
+  document.getElementById('vosub').textContent=heroesWin
+    ?'El equipo de Geralt ha derrotado a La Caceria Salvaje'
+    :'La Caceria Salvaje ha triunfado';
+  document.getElementById('vornds').textContent='Rondas jugadas: '+GS.round;
+  document.getElementById('voquote').textContent=heroesWin
+    ?'"El mal es el mal. Menor, mayor, ordinario... no hay diferencia." — Geralt de Rivia'
+    :'"La Llama Blanca devorara el mundo." — Eredin Breacc Glas';
+  ov.classList.add('show');
+}
+
+// ════════════════════════════════════════
+// CONTROLS
+// ════════════════════════════════════════
+function setBusy(b) {
+  GS.busy=b;
+  document.getElementById('bpaso').disabled=b;
+  document.getElementById('bauto').disabled=b&&!GS.autoOn;
+}
+
+async function onPaso() {
+  if(GS.busy||GS.autoOn) return;
+  if(!anyAlive(GS.heroes)||!anyAlive(GS.enemies)) return;
+  setBusy(true);
+  var r=await executeRound();
+  setBusy(false);
+  if(r!=='continue') showVictory(r==='heroes_win');
+}
+
+async function onAuto() {
+  if(GS.autoOn){ GS.autoOn=false; document.getElementById('bauto').classList.remove('on'); return; }
+  if(GS.busy) return;
+  GS.autoOn=true;
+  document.getElementById('bauto').classList.add('on');
+  while(GS.autoOn&&anyAlive(GS.heroes)&&anyAlive(GS.enemies)){
+    setBusy(true);
+    var r=await executeRound();
+    setBusy(false);
+    if(r!=='continue'){ showVictory(r==='heroes_win'); break; }
+    await wait(800);
+  }
+  GS.autoOn=false;
+  document.getElementById('bauto').classList.remove('on');
+}
+
+// ════════════════════════════════════════
+// GAME INIT
+// ════════════════════════════════════════
+function startGame(mode) {
+  GS.mode=mode;
+  GS.heroes =DEFS.filter(function(d){return d.team==='good';}).map(createChar);
+  GS.enemies=DEFS.filter(function(d){return d.team==='evil';}).map(createChar);
+  GS.round=0; GS.fx={}; GS.autoOn=false; GS.busy=false;
+
+  document.getElementById('ms').style.display='none';
+  document.getElementById('cs').style.display='';
+
+  var badge=document.getElementById('mbdg');
+  badge.textContent=mode==='auto'?'MODO AUTOMATICO':'MODO MANUAL';
+  badge.className='mbdg '+(mode==='auto'?'auto':'man');
+
+  render();
+  addLog('Equipo de Geralt vs La Caceria Salvaje.','inf');
+
+  if(mode==='manual'){
+    document.getElementById('ctrls').style.display='none';
+    addLog('Modo manual: elige las acciones de tu equipo cada turno.','inf');
+    runManual();
+  } else {
+    addLog('Modo automatico: pulsa SIGUIENTE para avanzar o AUTO para combate continuo.','inf');
+  }
+}
+
+async function runManual() {
+  while(anyAlive(GS.heroes)&&anyAlive(GS.enemies)){
+    var r=await executeRound();
+    render();
+    if(r!=='continue'){ showVictory(r==='heroes_win'); return; }
+    await wait(400);
+  }
+}
+
+function goBack(){ window.location.href='witcher_menu.html'; }
+
+// URL param launch
+(function(){
+  var p=new URLSearchParams(window.location.search).get('mode');
+  if(p==='auto'||p==='manual') startGame(p);
+})();
+</script>
+</body>
+</html>
