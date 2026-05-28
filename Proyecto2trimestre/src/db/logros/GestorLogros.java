@@ -41,11 +41,12 @@ public class GestorLogros {
         if (id <= 0)
             return;
 
-        // Cargar logros ya desbloqueados
+        // Cargar logros ya desbloqueados por ese jugador
         List<Object[]> filas = ConexionBD.consultar(
                 "SELECT l.nombre FROM logros_jugador lj " +
                 "JOIN logros l ON l.ID_logro = lj.ID_logro " +
                 "WHERE lj.ID_jugador = ?", ConexionBD.params(id));
+        //marca logro conseguido, reemplaza la barra baja
         for (Object[] fila : filas) {
             activarLogro(((String) fila[0]).replace("_", " "));
         }
