@@ -21,14 +21,28 @@ public class Combate {
 	private Scanner scanner = new Scanner(System.in);
     ArrayList<String> opciones = new ArrayList<>();
 
-
+    /**
+	 * Constructor principal para inicializar un nuevo combate.
+	 * * @param equipoBueno Lista de personajes aliados (Geralt).
+	 * @param equipoMalo Lista de personajes enemigos (La Cacería).
+	 * @param modoManual true si el jugador decide las acciones manualmente, false para combate automático.
+	 * @param idJugador El ID del jugador registrado en el sistema.
+	 */
 	public Combate(ArrayList<Personajes> equipoBueno, ArrayList<Personajes> equipoMalo, boolean modoManual, int idJugador) {
 	    this.equipoBueno = equipoBueno;
 	    this.equipoMalo = equipoMalo;
 	    this.modoManual = modoManual;
 	    this.idJugador = idJugador;
 	}
-
+	/**
+	 * Constructor secundario para cargar un combate existente desde la base de datos.
+	 * * @param equipoBueno Lista de personajes aliados (Geralt).
+	 * @param equipoMalo Lista de personajes enemigos (La Cacería).
+	 * @param modoManual true si el jugador decide las acciones manualmente, false para combate automático.
+	 * @param idCombate El ID único de la partida guardada en la BD.
+	 * @param rondaInicio La ronda en la que se va a reanudar el combate.
+	 * @param idJugador El ID del jugador registrado en el sistema.
+	 */
 	// Constructor para continuar una partida cargada desde la BD.
 	public Combate(ArrayList<Personajes> equipoBueno, ArrayList<Personajes> equipoMalo,
 	               boolean modoManual, int idCombate, int rondaInicio, int idJugador) {
@@ -36,6 +50,12 @@ public class Combate {
 	    this.idCombate = idCombate;
 	    this.rondaInicio = rondaInicio;
 	}
+	/**
+	 * Ejecuta las acciones del usuario por consola de un atacante manejado manualmente.
+	 * * @param atacante El personaje que tiene el turno.
+	 * @param enemigos La lista de personajes rivales disponibles para atacar.
+	 * @param aliados La lista de personajes de su propio equipo (útil para curaciones).
+	 */
 	private void ejecutarTurnoManual(Personajes atacante, ArrayList<Personajes> enemigos, ArrayList<Personajes> aliados) {
 	    System.out.println("  >> Turno de " + atacante.getNombre());
 	    System.out.println("  ------------------------------------------");
@@ -125,7 +145,10 @@ public class Combate {
 	}
 
 	    
-
+	/**
+	 * Pausa la ejecución de la consola para mejorar la legibilidad.
+	 * * @param milisegundos La cantidad de milisegundos que el hilo debe dormir.
+	 */
 	// Pausa la ejecucion unos milisegundos para que la consola sea mas legible
 	private void esperar(int milisegundos) {
 		try {
@@ -194,6 +217,10 @@ public class Combate {
 	    System.out.println("==========================================================\n");
 	    esperar(2000);
 	}
+	/**
+	 * Procesa los estados activos (DoT y HoT) de todos los personajes de un equipo.
+	 * * @param equipo La lista de personajes del equipo a procesar.
+	 */
 	private void procesarEstadosEquipo(ArrayList<Personajes> equipo) {
 		for (Personajes p : equipo) {
 			if (p.estaVivo()) {
@@ -201,13 +228,20 @@ public class Combate {
 			}
 		}
 	}
-
+	/**
+	 * Reduce en 1 los tiempos de recarga de las habilidades de todo un equipo al final del turno.
+	 * * @param equipo La lista de personajes a los que se les reduce el cooldown.
+	 */
 	private void reducirCooldownsEquipo(ArrayList<Personajes> equipo) {
 		for (Personajes p : equipo) {
 			p.reducirCooldowns();
 		}
 	}
-
+	/**
+	 * Comprueba si queda al menos un integrante vivo en el equipo.
+	 * * @param equipo El equipo a evaluar.
+	 * @return true si hay vivos, false si todos están muertos.
+	 */
 	// Devuelve true si algún personaje del equipo sigue vivo
 	private boolean hayVivos(ArrayList<Personajes> equipo) {
 		for (Personajes p : equipo) {
@@ -217,7 +251,11 @@ public class Combate {
 		}
 		return false;
 	}
-
+	/**
+	 * Busca de forma aleatoria un personaje enemigo que siga con vida.
+	 * * @param equipo El equipo rival donde buscar.
+	 * @return Un objeto Personajes enemigo, o null si no quedan vivos.
+	 */
 	// Devuelve un enemigo vivo al azar del equipo indicado.
 	// Devuelve null si no queda nadie vivo.
 	private Personajes obtenerEnemigoVivo(ArrayList<Personajes> equipo) {
@@ -233,7 +271,11 @@ public class Combate {
 		int indiceAleatorio = (int) (Math.random() * vivos.size());
 		return vivos.get(indiceAleatorio);
 	}
-
+	/**
+	 * Busca el integrante del equipo vivo que tiene menos salud.
+	 * * @param equipo El equipo aliado donde buscar.
+	 * @return El aliado vivo con menor vida actual, o null si no hay aliados vivos.
+	 */
 	// Devuelve el aliado vivo con menos vida del equipo indicado.
 	// Lo usan los sacerdotes para curar al más debil.
 	// Devuelve null si no queda nadie vivo.
@@ -248,7 +290,12 @@ public class Combate {
 		}
 		return masDebil;
 	}
-
+	/**
+	 * Ejecuta el turno de forma automática para la IA (selección de habilidades vs ataques básicos).
+	 * * @param atacante El personaje gestionado por la IA.
+	 * @param enemigos La lista del equipo contrario.
+	 * @param aliados La lista de compañeros del atacante.
+	 */
 	// Ejecuta el turno de un personaje:
 	// Si tiene hechizos disponibles los usa, si no ataca con arma.
 	// Los hechizos de daño van a enemigos y los de curacion al aliado mas debil.

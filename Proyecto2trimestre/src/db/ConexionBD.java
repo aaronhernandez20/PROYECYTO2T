@@ -1,3 +1,7 @@
+/**
+ * Clases encargadas de la persistencia de datos, conexión a la base de datos MySQL,
+ * y guardado/carga del estado de las partidas.
+ */
 package db;
 
 import java.sql.Connection;
