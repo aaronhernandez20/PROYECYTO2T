@@ -78,7 +78,7 @@ public class Main {
 
             if (opcion == 2) {
                 List<Object[]> partidas = ConexionBD.consultar(
-                    "SELECT ID_COMBATE FROM COMBATE WHERE resumenFinal IS NULL");
+                        "SELECT ID_COMBATE FROM COMBATE WHERE resumenFinal IS NULL");
 
                 if (partidas.size() == 0) {
                     System.out.println("No hay partidas guardadas. Iniciando nueva partida...");
@@ -177,19 +177,18 @@ public class Main {
     private static String pedirNombre(Scanner scanner) {
         while (true) {
             System.out.print("¿Como te llamas, Cazador? ");
-            String nombre = scanner.nextLine().trim();
-            int letras = 0;
-            for (int i = 0; i < nombre.length(); i++) {
-                letras++;
-            }
-            if (letras == 0) {
+            String nombre = scanner.nextLine();
+
+            if (nombre.length() == 0) {
                 System.out.println("  Error: el nombre no puede estar vacio.");
                 continue;
             }
-            if (letras > 20) {
+
+            if (nombre.length() > 20) {
                 System.out.println("  Error: el nombre no puede tener mas de 20 letras.");
                 continue;
             }
+
             return nombre;
         }
     }
