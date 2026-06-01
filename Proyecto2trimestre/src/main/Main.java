@@ -39,7 +39,7 @@ public class Main {
 
             if (opcion == 8) {
                 seguir = false;
-                break;
+                
             }
 
             if (opcion == 6) {
