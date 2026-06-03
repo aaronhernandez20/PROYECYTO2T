@@ -12,9 +12,21 @@ import estados.Veneno;
 import hechizos.Hechizos;
 import personajes.Personajes;
 
+/**
+ * La clase PersistenciaPartida es el núcleo de guardado y carga del juego.
+ * <p>
+ * Gestiona la inicialización segura de la base de datos (migraciones), 
+ * el registro de jugadores, y la serialización y deserialización completa 
+ * del estado de la partida (vida de personajes, armas equipadas, cooldowns 
+ * de hechizos y estados alterados) contra las tablas de MySQL.
+ * </p>
+ */
 public class PersistenciaPartida {
 
-    // Crea tablas y columnas necesarias si no existen (migracion segura).
+    /**
+     * Crea las tablas y añade las columnas necesarias si no existen en la base de datos.
+     * Actúa como un mecanismo de migración segura al iniciar la aplicación.
+     */
     public static void inicializar() {
         ConexionBD.ejecutar(
             "CREATE TABLE IF NOT EXISTS jugadores (" +
@@ -42,7 +54,11 @@ public class PersistenciaPartida {
             new ArrayList<>());
     }
 
-    // Busca el jugador por nombre. Si no existe lo crea. Devuelve su ID.
+    /**
+     * Busca a un jugador por su nombre en la base de datos. Si no existe, lo registra.
+     * * @param nombre El nombre del jugador (cazador).
+     * @return El identificador único (ID) del jugador en la base de datos.
+     */
     public static int obtenerOCrearJugador(String nombre) {
         List<Object[]> filas = ConexionBD.consultar(
             "SELECT ID_jugador FROM jugadores WHERE nombre = ?", ConexionBD.params(nombre));
@@ -57,7 +73,11 @@ public class PersistenciaPartida {
         return id;
     }
 
-    // Actualiza victorias o derrotas del jugador al terminar un combate.
+    /**
+     * Incrementa el contador global de victorias o derrotas del jugador tras finalizar un combate.
+     * * @param idJugador El identificador del jugador.
+     * @param victoria true si el jugador ganó el combate, false si perdió.
+     */
     public static void actualizarEstadisticasJugador(int idJugador, boolean victoria) {
         if (idJugador <= 0) return;
         if (victoria) {
@@ -71,8 +91,11 @@ public class PersistenciaPartida {
         }
     }
 
-    // Crea un nuevo combate en la BD y registra los 6 personajes.
-    // Devuelve el ID del combate generado.
+    /**
+     * Crea un nuevo registro de combate en la base de datos y asocia a los 6 personajes participantes.
+     * * @param idJugador El identificador del jugador que inicia la partida.
+     * @return El ID generado para el nuevo combate.
+     */
     public static int nuevaPartida(int idJugador) {
         int idCombate;
         if (idJugador > 0) {
@@ -84,6 +107,7 @@ public class PersistenciaPartida {
                 "INSERT INTO COMBATE (turno, nRondas) VALUES (1, 0)", new ArrayList<>());
         }
 
+        // Registra la participación de los 6 personajes fijos
         for (int idPersonaje = 1; idPersonaje <= 6; idPersonaje++) {
             ConexionBD.ejecutar(
                 "INSERT INTO COMBATE_PERSONAJE (ID_COMBATE, ID_personaje) VALUES (?, ?)",
@@ -94,7 +118,13 @@ public class PersistenciaPartida {
         return idCombate;
     }
 
-    // Guarda el estado actual de todos los personajes y la ronda en la BD.
+    /**
+     * Guarda en la base de datos el estado exacto del combate actual para poder continuarlo más tarde.
+     * * @param idCombate El identificador de la partida en curso.
+     * @param equipoBueno Lista con el estado actual de los personajes aliados.
+     * @param equipoMalo Lista con el estado actual de los personajes enemigos.
+     * @param ronda El número de ronda en el que se solicita el guardado.
+     */
     public static void guardarEstado(int idCombate, ArrayList<Personajes> equipoBueno,
                                      ArrayList<Personajes> equipoMalo, int ronda) {
         ArrayList<Personajes> todos = combinarEquipos(equipoBueno, equipoMalo);
@@ -116,7 +146,9 @@ public class PersistenciaPartida {
         System.out.println("[BD] Partida guardada. Ronda: " + ronda);
     }
 
-    // Actualiza qué arma está equipada del personaje en PERSONAJE_ARMA.
+    /**
+     * Actualiza en la tabla PERSONAJE_ARMA cuál de las armas disponibles tiene actualmente equipada el personaje.
+     */
     private static void guardarArma(Personajes personaje) {
         List<Object[]> filas = ConexionBD.consultar(
             "SELECT ID_ARMA FROM PERSONAJE_ARMA WHERE ID_personaje=? ORDER BY ID_ARMA",
@@ -141,7 +173,9 @@ public class PersistenciaPartida {
         }
     }
 
-    // Guarda los cooldowns actuales de los hechizos del personaje.
+    /**
+     * Persiste los turnos de recarga (cooldowns) actuales de todos los hechizos del personaje.
+     */
     private static void guardarCooldowns(Personajes personaje) {
         List<Object[]> filas = ConexionBD.consultar(
             "SELECT ID_HECHIZO FROM PERSONAJE_HECHIZO WHERE ID_personaje=? ORDER BY ID_HECHIZO",
@@ -157,7 +191,9 @@ public class PersistenciaPartida {
         }
     }
 
-    // Borra los estados del personaje en BD y guarda los actuales.
+    /**
+     * Borra los estados antiguos del personaje en la BD y registra los que tiene activos en este turno.
+     */
     private static void guardarEstados(Personajes personaje) {
         ConexionBD.ejecutar(
             "DELETE FROM ESTADOS WHERE ID_personaje=?",
@@ -176,8 +212,12 @@ public class PersistenciaPartida {
         }
     }
 
-    // Carga el estado guardado de un combate desde la BD.
-    // Devuelve null si no existe ese combate.
+    /**
+     * Restaura por completo una partida previamente guardada extrayendo sus datos de la base de datos.
+     * * @param idCombate El identificador de la partida que se desea cargar.
+     * @return Un objeto EstadoPartida con todos los datos listos para inyectar en el motor Combate, 
+     * o null si no se encuentra la partida.
+     */
     public static EstadoPartida cargarEstado(int idCombate) {
         List<Object[]> filas = ConexionBD.consultar(
             "SELECT nRondas, ID_jugador FROM COMBATE WHERE ID_COMBATE=?", ConexionBD.params(idCombate));
@@ -222,7 +262,9 @@ public class PersistenciaPartida {
         return new EstadoPartida(equipoBueno, equipoMalo, ronda, idCombate, idJugador);
     }
 
-    // Equipa el arma que estaba guardada como equipada en PERSONAJE_ARMA.
+    /**
+     * Lee la base de datos y equipa al personaje con el arma que tenía en el momento de guardar.
+     */
     private static void cargarArma(Personajes personaje) {
         List<Object[]> filas = ConexionBD.consultar(
             "SELECT equipada FROM PERSONAJE_ARMA WHERE ID_personaje=? ORDER BY ID_ARMA",
@@ -237,7 +279,9 @@ public class PersistenciaPartida {
         }
     }
 
-    // Restaura los cooldowns de los hechizos desde la BD.
+    /**
+     * Lee la base de datos y restaura los tiempos de recarga de los hechizos del personaje.
+     */
     private static void cargarCooldowns(Personajes personaje) {
         List<Object[]> filas = ConexionBD.consultar(
             "SELECT cooldownActual FROM PERSONAJE_HECHIZO WHERE ID_personaje=? ORDER BY ID_HECHIZO",
@@ -252,7 +296,10 @@ public class PersistenciaPartida {
         }
     }
 
-    // Restaura los estados activos desde la BD sin llamar a alAplicar.
+    /**
+     * Reconstruye los objetos de los estados alterados (Quemadura, Renovar, Veneno) desde la BD
+     * y los inyecta en el personaje sin ejecutar sus mecánicas iniciales (alAplicar).
+     */
     private static void cargarEstados(Personajes personaje) {
         List<Object[]> filas = ConexionBD.consultar(
             "SELECT nombre, turnosRestantes, potenciaPorTurno, aplicadoPorSacerdote FROM ESTADOS WHERE ID_personaje=?",
@@ -277,7 +324,12 @@ public class PersistenciaPartida {
         }
     }
 
-    // Marca el combate como finalizado con el resultado.
+    /**
+     * Actualiza el registro del combate en la base de datos para marcarlo como finalizado.
+     * * @param idCombate El identificador de la partida.
+     * @param rondas El número total de rondas que duró el enfrentamiento.
+     * @param resumen Texto indicando el desenlace (ej. "Victoria de los Brujos").
+     */
     public static void finalizarPartida(int idCombate, int rondas, String resumen) {
         ConexionBD.ejecutar(
             "UPDATE COMBATE SET nRondas=?, resumenFinal=? WHERE ID_COMBATE=?",
@@ -285,7 +337,9 @@ public class PersistenciaPartida {
         System.out.println("[BD] Partida " + idCombate + " finalizada. " + resumen);
     }
 
-    // Muestra todas las partidas guardadas en consola.
+    /**
+     * Muestra por consola un listado con todas las partidas registradas en el sistema.
+     */
     public static void listarPartidas() {
         List<Object[]> filas = ConexionBD.consultar(
             "SELECT ID_COMBATE, nRondas, resumenFinal, fechaGuardado FROM COMBATE ORDER BY fechaGuardado DESC");
@@ -304,7 +358,10 @@ public class PersistenciaPartida {
         }
     }
 
-    // Borra una partida y todos sus datos asociados de la BD.
+    /**
+     * Elimina permanentemente una partida y toda su información vinculada de la base de datos.
+     * * @param idCombate El identificador de la partida a borrar.
+     */
     public static void borrarPartida(int idCombate) {
         List<Object[]> filas = ConexionBD.consultar(
             "SELECT ID_COMBATE FROM COMBATE WHERE ID_COMBATE=?", ConexionBD.params(idCombate));
@@ -318,10 +375,13 @@ public class PersistenciaPartida {
         System.out.println("  Partida " + idCombate + " borrada correctamente.");
     }
 
+    /**
+     * Método auxiliar privado que fusiona las listas de ambos equipos en una sola.
+     * Utilizado para iterar y procesar a todos los personajes simultáneamente.
+     */
     private static ArrayList<Personajes> combinarEquipos(ArrayList<Personajes> equipoBueno, ArrayList<Personajes> equipoMalo) {
         ArrayList<Personajes> todos = new ArrayList<>(equipoBueno);
         todos.addAll(equipoMalo);
         return todos;
     }
-
 }

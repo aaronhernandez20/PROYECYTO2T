@@ -3,8 +3,23 @@ package db.ranking;
 import java.util.List;
 import db.ConexionBD;
 
+/**
+ * La clase Ranking se encarga de consultar y visualizar las clasificaciones
+ * globales del juego directamente desde la base de datos.
+ * <p>
+ * Muestra dos secciones principales por consola:
+ * 1. La clasificación de jugadores (ordenada por número de victorias y derrotas).
+ * 2. El historial de combates finalizados, detallando el jugador, rondas invertidas y la fecha.
+ * </p>
+ */
 public class Ranking {
 
+    /**
+     * Consulta la base de datos y muestra por consola el ranking global y el historial.
+     * Ejecuta dos consultas SQL a través de {@link ConexionBD}: una para obtener 
+     * las estadísticas consolidadas de los jugadores y otra con un LEFT JOIN para 
+     * listar los últimos combates registrados y finalizados.
+     */
     public static void mostrarRanking() {
         System.out.println("\n╔══════════════════════════════════════════════════════╗");
         System.out.println("║                  RANKING GLOBAL                     ║");
