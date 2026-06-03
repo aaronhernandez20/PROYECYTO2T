@@ -102,7 +102,8 @@ public class ConexionBD {
     // Crea la lista de parametros para pasar a ejecutar() o consultar()
     public static List<Object> params(Object... valores) {
         List<Object> lista = new ArrayList<>();
-        for (Object v : valores) lista.add(v);
+        for (Object v : valores)
+            lista.add(v);
         return lista;
     }
 }
