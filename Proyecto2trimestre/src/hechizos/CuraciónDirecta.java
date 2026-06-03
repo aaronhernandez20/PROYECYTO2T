@@ -3,20 +3,39 @@ package hechizos;
 import personajes.Personajes;
 import personajes.Sacerdote;
 
-// CURACIÓN DIRECTA - Hechizo que restaura vida inmediata a un aliado.
-// Ciri usa:  Poción de Golondrina
-// Eredin usa: Sacrificio Oscuro
-//
-// Curación = potenciaBase (+200 HP fijo en los parámetros del hechizo).
-// Si el lanzador es Sacerdote, el método curar() de Sacerdote ya añade
-// automáticamente el bonusSanacion, así que no hay que hacer nada extra aquí.
-
+/**
+ * La clase CuraciónDirecta es una subclase de {@link Hechizos}.
+ * Representa un hechizo de apoyo que restaura vida de forma inmediata a un aliado.
+ * <p>
+ * <b>Mecánica de Curación:</b> La cantidad de vida curada viene determinada por 
+ * la potencia base del hechizo (habitualmente +200 HP fijos).<br>
+ * Si el personaje que lanza este hechizo es un {@link Sacerdote}, gracias al polimorfismo, 
+ * su propio método de curación aplicará automáticamente un bonus de sanación extra, 
+ * sin requerir cálculos adicionales desde esta clase.
+ * </p>
+ */
 public class CuraciónDirecta extends Hechizos {
 
+    /**
+     * Constructor para inicializar un hechizo de Curación Directa.
+     * El nombre varía temáticamente según el personaje (ej. Ciri usa "Poción de Golondrina", 
+     * Eredin usa "Sacrificio Oscuro").
+     * * @param nombre El nombre del hechizo en combate.
+     * @param costeMana La cantidad de recurso (maná/fe) requerida para lanzarlo.
+     * @param potenciaBase La cantidad de puntos de vida fijos que restaura al impacto.
+     * @param cooldownMaximo Los turnos de recarga (espera) antes de poder volver a usarlo.
+     */
     public CuraciónDirecta(String nombre, int costeMana, int potenciaBase, int cooldownMaximo) {
         super(nombre, costeMana, potenciaBase, cooldownMaximo, TipoObjetivo.ALIADO_UNICO);
     }
 
+    /**
+     * Ejecuta el lanzamiento del hechizo de sanación sobre el objetivo aliado.
+     * Restaura la vida del objetivo, notifica por consola si el lanzador es un Sacerdote 
+     * (quien aplica su propio bonus) y finalmente registra el uso para los logros.
+     * * @param lanzador El personaje que invoca y lanza el hechizo.
+     * @param blanco El personaje aliado (puede ser el propio lanzador) que recibe la curación.
+     */
     @Override
     public void lanzar(Personajes lanzador, Personajes blanco) {
         if (!puedeUsarse(lanzador))

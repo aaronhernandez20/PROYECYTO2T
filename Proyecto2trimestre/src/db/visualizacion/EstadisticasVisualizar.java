@@ -11,18 +11,26 @@ import catalogo.CatalogoPersonajes;
 import personajes.Personajes;
 
 /**
- * Visualizador de la vida maxima inicial de cada personaje.
- * 
- * Muestra un grafico de barras comparando la vida maxima de los 6 personajes
- * del juego, separados en dos series: equipo bueno y equipo malo.
- * 
- * Para usarlo desde Main:
- * EstadisticasVisualizer.mostrarVidaInicial();
- * 
- * Requiere la dependencia XChart en pom.xml (org.knowm.xchart, version 3.8.7).
+ * La clase EstadisticasVisualizar se encarga de mostrar visualmente
+ * la vida máxima inicial de cada personaje mediante un gráfico de barras.
+ * <p>
+ * El gráfico compara los 6 personajes del juego, divididos en dos series
+ * de datos: "Equipo bueno" y "Equipo malo".
+ * </p>
+ * <p>
+ * Para usarlo desde Main basta con invocar: {@code EstadisticasVisualizar.mostrarVidaInicial();}
+ * <br>
+ * Requiere tener configurada la dependencia de XChart en el archivo pom.xml 
+ * (org.knowm.xchart, versión 3.8.7).
+ * </p>
  */
 public class EstadisticasVisualizar {
 
+    /**
+     * Genera y muestra un gráfico de barras con la vida máxima de los personajes.
+     * Instancia los personajes desde el catálogo, separa sus estadísticas según 
+     * su equipo y renderiza la ventana del gráfico utilizando la librería XChart.
+     */
     public static void mostrarVidaInicial() {
 
         // 1. Crear los 6 personajes desde el catalogo
@@ -85,7 +93,12 @@ public class EstadisticasVisualizar {
         new SwingWrapper<>(grafico).displayChart();
     }
 
-    /** Permite ejecutar este visualizador de forma independiente para pruebas. */
+    /** 
+     * Método principal secundario que permite ejecutar este visualizador de forma 
+     * independiente para realizar pruebas, sin necesidad de arrancar el juego completo.
+     * 
+     * @param args Argumentos de la línea de comandos (no utilizados).
+     */
     public static void main(String[] args) {
         mostrarVidaInicial();
     }

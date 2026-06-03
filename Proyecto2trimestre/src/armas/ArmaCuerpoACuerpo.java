@@ -2,19 +2,32 @@ package armas;
 
 import personajes.Personajes;
 
-// ArmaCuerpoACuerpo es una subclase de Armas.
-// Calcula el daño usando el danoBase del arma mas el modificador y el critico.
-
+/**
+ * ArmaCuerpoACuerpo es una subclase de {@link Armas}.
+ * Representa un arma diseñada para el combate a corta distancia.
+ * Calcula el daño final utilizando el daño base del arma, aplicando su modificador 
+ * de escalado y evaluando la probabilidad de asestar un golpe crítico.
+ */
 public class ArmaCuerpoACuerpo extends Armas {
 
-    // Constructor
-    // "CUERPO_A_CUERPO".
-    // Recibe el nombre, daño base, modificador y probabilidad de critico.
+    /**
+     * Constructor para instanciar un arma de combate cuerpo a cuerpo.
+     * Asigna automáticamente la categoría "CUERPO_A_CUERPO" al llamar al constructor padre.
+     * * @param nombre El nombre del arma (ej. "Espada de Plata").
+     * @param danoBase El daño estático que inflige el arma por defecto.
+     * @param modificador Un multiplicador escalar (ej. 1.2 aumenta el daño en un 20%).
+     * @param probCritico Probabilidad (en formato decimal, ej. 0.2 para 20%) de ejecutar un golpe crítico.
+     */
     public ArmaCuerpoACuerpo(String nombre, int danoBase, double modificador, double probCritico) {
         super(nombre, "CUERPO_A_CUERPO", danoBase, modificador, probCritico);
     }
 
-    // Calcula el daño que hace esta arma en un ataque.
+    /**
+     * Calcula el daño final que hace esta arma en un ataque determinado.
+     * * @param atacante El personaje que porta el arma y ataca.
+     * @param defensor El personaje que recibe el impacto del ataque.
+     * @return El daño total infligido tras aplicar todos los modificadores y críticos.
+     */
     @Override
     public int calcularDano(Personajes atacante, Personajes defensor) {
 

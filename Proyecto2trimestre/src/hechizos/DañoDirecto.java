@@ -3,22 +3,38 @@ package hechizos;
 import personajes.Personajes;
 import personajes.Mago;
 
-// DAÑO DIRECTO - Hechizo de daño instantáneo a un enemigo único.
-// Geralt/Yennefer usan: Señal de Igni
-// Caranthir usa:        Lanza de Hielo
-//
-// Daño = potenciaBase + poderMagico del lanzador
-// Si el lanzador es Mago, se aplica además su multiplicadorMagico (los
-// hechizos del mago ignoran la defensa del rival: se llama a recibirDanoMagico).
-
+/**
+ * La clase DañoDirecto es una subclase de {@link Hechizos}.
+ * Representa un hechizo de daño instantáneo dirigido a un enemigo único.
+ * <p>
+ * <b>Mecánica de Daño:</b> El daño se calcula sumando la potenciaBase del hechizo 
+ * y el poderMagico del lanzador.<br>
+ * Si el lanzador pertenece a la clase {@link Mago}, se aplica además su multiplicador 
+ * mágico y el impacto ignora completamente la defensa del rival (daño directo a la vida).
+ * </p>
+ */
 public class DañoDirecto extends Hechizos {
 
-    // Constructor: el nombre cambia según el personaje que lo use (Igni o Lanza de
-    // Hielo)
+    /**
+     * Constructor para inicializar un hechizo de Daño Directo.
+     * El nombre y las estadísticas varían según el personaje (ej. Geralt usa "Señal de Igni", 
+     * Caranthir usa "Lanza de Hielo").
+     * * @param nombre El nombre del hechizo en combate.
+     * @param costeMana La cantidad de recurso (maná/vigor) requerida para lanzarlo.
+     * @param potenciaBase El daño base que inflige el hechizo.
+     * @param cooldownMaximo Los turnos de recarga (espera) antes de poder volver a usarlo.
+     */
     public DañoDirecto(String nombre, int costeMana, int potenciaBase, int cooldownMaximo) {
         super(nombre, costeMana, potenciaBase, cooldownMaximo, TipoObjetivo.ENEMIGO_UNICO);
     }
 
+    /**
+     * Ejecuta el lanzamiento del hechizo ofensivo sobre el objetivo.
+     * Calcula el daño final y lo aplica al enemigo, alterando la ejecución si el
+     * atacante es un Mago (ignorando la armadura del rival).
+     * * @param lanzador El personaje que invoca y lanza el hechizo.
+     * @param blanco El personaje enemigo que recibe el impacto del hechizo.
+     */
     @Override
     public void lanzar(Personajes lanzador, Personajes blanco) {
         // Comprobamos cooldown y recurso antes de hacer nada
